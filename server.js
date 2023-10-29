@@ -3,7 +3,7 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
-const players = {};
+var players = {};
 
 app.use(express.static(__dirname + '/public'));
 
@@ -14,8 +14,8 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
   console.log('Пользователь подключился: ', socket.id);
 
-  function createNewPlayer() {
-    const newPlayer = {
+  
+    players[socket.id] = {
       rotation: 0,
       x: Math.floor(Math.random() * 700) + 50,
       y: Math.floor(Math.random() * 500) + 50,
@@ -23,16 +23,14 @@ io.on('connection', (socket) => {
       isMoving: false, // Добавляем информацию о состоянии движения
       flipX: false, // Добавляем информацию о flipX
     };
-    return newPlayer;
-  }
-
-  const newPlayer = createNewPlayer();
-  players[socket.id] = newPlayer;
+    
+  
+  
 
   // Отправить информацию о существующих игроках новому игроку
   socket.emit('currentPlayers', players);
   // Отправить информацию о новом игроке другим игрокам
-  socket.broadcast.emit('newPlayer', newPlayer);
+  socket.broadcast.emit('newPlayer', players[socket.id]);
 
   socket.on('disconnect', () => {
     console.log('Пользователь отключился: ', socket.id);
@@ -44,8 +42,10 @@ io.on('connection', (socket) => {
     players[socket.id].x = movementData.x;
     players[socket.id].y = movementData.y;
     players[socket.id].rotation = movementData.rotation;
-    players[socket.id].isMoving = movementData.isMoving; // Обновляем состояние движения
+    players[socket.id].isMoving = movementData.isMoving;
     players[socket.id].flipX = movementData.flipX; // Обновляем flipX
+  
+    // Теперь отправляем информацию о движении и flipX всем клиентам
     socket.broadcast.emit('playerMoved', players[socket.id]);
   });
 

@@ -19,9 +19,9 @@ let isMoving = false;
 let idleAnim;
 let moveAnim;
 let speed = 2;
-let socket;
+
 let self;
-const players = {};
+
 
 function preload() {
   this.load.spritesheet('playerIdle', 'assets/player/idle.png', { frameWidth: 40, frameHeight: 40 });
@@ -31,7 +31,7 @@ function preload() {
 
 function create() {
   self = this;
-  socket = io();
+  this.socket = io();
   document.body.style.cursor = 'none';
 
   this.customCursor = this.add.image(0, 0, 'customCursor');
@@ -63,25 +63,23 @@ function create() {
   player.play('idle');
 
   this.otherPlayers = this.add.group();
-
-  socket.on('currentPlayers', function (players) {
+  this.socket.on('currentPlayers', function (players) {
     Object.keys(players).forEach(function (id) {
-      if (players[id].playerId === socket.id) {
-        if (!player) { // Проверка, создан ли игрок уже
+      if (players[id].playerId === self.socket.id) {
+        if (!player) {
           addPlayer(self, players[id]);
-        }
+        }  
       } else {
         addOtherPlayers(self, players[id]);
       }
     });
   });
 
-  socket.on('newPlayer', function (playerInfo) {
+  this.socket.on('newPlayer', function (playerInfo) {
     addOtherPlayers(self, playerInfo);
-    players[playerInfo.playerId] = playerInfo;
   });
 
-  socket.on('disconnect', function (playerId) {
+  this.socket.on('disconnect', function (playerId) {
     self.otherPlayers.getChildren().forEach(function (otherPlayer) {
       if (playerId === otherPlayer.playerId) {
         otherPlayer.destroy();
@@ -91,12 +89,13 @@ function create() {
 
   
 
-  socket.on('playerMoved', function (playerInfo) {
-    if (players[playerInfo.playerId]) {
-      const otherPlayer = players[playerInfo.playerId];
-      otherPlayer.setRotation(playerInfo.rotation);
-      otherPlayer.setPosition(playerInfo.x, playerInfo.y);
-    }
+  this.socket.on('playerMoved', function (playerInfo) {
+    self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+      if (playerInfo.playerId === otherPlayer.playerId) {
+        otherPlayer.setRotation(playerInfo.rotation);
+        otherPlayer.setPosition(playerInfo.x, playerInfo.y);
+      }
+    });
   });
 }
 
@@ -111,13 +110,30 @@ function update() {
   const x = player.x;
   const y = player.y;
   const rotation = player.rotation;
-  socket.emit('playerMovement', { x, y, rotation });
+  
 
    // Calculate the angle between the player and the cursor
    const angle = Phaser.Math.Angle.Between(player.x, player.y, self.customCursor.x, self.customCursor.y);
 
    // Set the player's flipX property based on the angle
    player.setFlipX(angle > Math.PI / 2 || angle < -Math.PI / 2);
+   this.socket.on('playerMovement', function (playerInfo) {
+    if (players[playerInfo.playerId]) {
+      const otherPlayer = players[playerInfo.playerId];
+      otherPlayer.setRotation(playerInfo.rotation);
+      otherPlayer.setPosition(playerInfo.x, playerInfo.y);
+  
+      // Установите flipX для отображения персонажа
+      otherPlayer.setFlipX(playerInfo.flipX);
+  
+      // Обновление анимации в зависимости от состояния движения
+      if (playerInfo.isMoving) {
+        otherPlayer.play('move', true);
+      } else {
+        otherPlayer.play('idle', true);
+      }
+    }
+  });
 }
 
 function move() {
@@ -155,11 +171,25 @@ function move() {
 
   player.x += dx * moveSpeed;
   player.y += dy * moveSpeed;
+   // emit player movement
+   var x = player.x;
+   var y = player.y;
+   if (player.oldPosition && (x !== player.oldPosition.x || y !== player.oldPosition.y)) {
+    self.socket.emit('playerMovement', { x: player.x, y: player.y});
+   }
+   // save old position data
+   player.oldPosition = {
+     x: player.x,
+     y: player.y,
+   };
+  
 }
 
+ 
+
 function addPlayer(self, playerInfo) {
-  self.ship = self.add.sprite(playerInfo.x, playerInfo.y, 'playerIdle');
-  self.ship.play('idle');
+  self.player = self.add.sprite(playerInfo.x, playerInfo.y, 'playerIdle');
+  self.player.play('idle');
 }
 
 function addOtherPlayers(self, playerInfo) {
@@ -170,6 +200,6 @@ function addOtherPlayers(self, playerInfo) {
     const otherPlayer = self.add.sprite(playerInfo.x, playerInfo.y, 'playerIdle');
     otherPlayer.playerId = playerInfo.playerId;
     self.otherPlayers.add(otherPlayer);
-    players[playerInfo.playerId] = otherPlayer;
+    
   }
 }
