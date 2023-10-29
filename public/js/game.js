@@ -105,6 +105,17 @@ function create() {
       }
     });
   });
+  this.socket.on('animationUpdate', function (data) {
+    self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+      if (data.playerId === otherPlayer.playerId) {
+        if (data.animationKey === 'move') {
+          otherPlayer.play('move', true);
+        } else {
+          otherPlayer.play('idle', true);
+        }
+      }
+    });
+  });
 }
 
 function calculateFlipX(player, cursor) {
@@ -135,7 +146,7 @@ function move() {
   const mouseY = self.input.activePointer.worldY;
   let moveSpeed = speed;
   isFlipX = calculateFlipX(player, self.customCursor);
-  
+  let animationKey = isMoving ? 'move' : 'idle'; // Определение текущей анимации
 
   if (self.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W).isDown) {
     dy -= 1;
@@ -164,7 +175,8 @@ function move() {
     x: player.x,
     y: player.y,
     isMoving: isMoving,
-    flipX: isFlipX, // Добавьте flipX в данные о движении
+    flipX: isFlipX, 
+    animationKey: animationKey, 
   });
    // save old position data
    player.oldPosition = {

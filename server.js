@@ -43,6 +43,7 @@ io.on('connection', (socket) => {
     players[socket.id].y = movementData.y;
     players[socket.id].isMoving = movementData.isMoving;
     players[socket.id].flipX = movementData.flipX; // Обновляем flipX
+    players[socket.id].animationKey = movementData.animationKey;
   // Теперь отправляем информацию о движении и flipX всем клиентам, включая отправившего
   io.emit('playerMoved', players[socket.id]);
 
@@ -50,6 +51,11 @@ io.on('connection', (socket) => {
   socket.broadcast.emit('flipXUpdate', {
     playerId: socket.id,
     flipX: movementData.flipX,
+  });
+  // Отправляем информацию об анимации только другим клиентам (исключая отправившего)
+  socket.broadcast.emit('animationUpdate', {
+    playerId: socket.id,
+    animationKey: movementData.animationKey,
   });
   });
 
