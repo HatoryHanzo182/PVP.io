@@ -16,10 +16,10 @@ const game = new Phaser.Game(config);
 let player;
 let customCursor;
 let isMoving = false;
+let isFlipX = false;
 let idleAnim;
 let moveAnim;
 let speed = 2;
-
 let self;
 
 
@@ -97,6 +97,19 @@ function create() {
       }
     });
   });
+
+  this.socket.on('flipXUpdate', function (data) {
+    self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+      if (data.playerId === otherPlayer.playerId) {
+        otherPlayer.setFlipX(data.flipX);
+      }
+    });
+  });
+}
+
+function calculateFlipX(player, cursor) {
+  const angle = Phaser.Math.Angle.Between(player.x, player.y, cursor.x, cursor.y);
+  return angle > Math.PI / 2 || angle < -Math.PI / 2;
 }
 
 function update() {
@@ -109,31 +122,10 @@ function update() {
 
   const x = player.x;
   const y = player.y;
-  const rotation = player.rotation;
   
 
-   // Calculate the angle between the player and the cursor
-   const angle = Phaser.Math.Angle.Between(player.x, player.y, self.customCursor.x, self.customCursor.y);
-
-   // Set the player's flipX property based on the angle
-   player.setFlipX(angle > Math.PI / 2 || angle < -Math.PI / 2);
-   this.socket.on('playerMovement', function (playerInfo) {
-    if (players[playerInfo.playerId]) {
-      const otherPlayer = players[playerInfo.playerId];
-      otherPlayer.setRotation(playerInfo.rotation);
-      otherPlayer.setPosition(playerInfo.x, playerInfo.y);
-  
-      // Установите flipX для отображения персонажа
-      otherPlayer.setFlipX(playerInfo.flipX);
-  
-      // Обновление анимации в зависимости от состояния движения
-      if (playerInfo.isMoving) {
-        otherPlayer.play('move', true);
-      } else {
-        otherPlayer.play('idle', true);
-      }
-    }
-  });
+  player.setFlipX(calculateFlipX(player, self.customCursor));
+   
 }
 
 function move() {
@@ -142,12 +134,8 @@ function move() {
   const mouseX = self.input.activePointer.worldX;
   const mouseY = self.input.activePointer.worldY;
   let moveSpeed = speed;
-
-  if (mouseX < player.x) {
-    player.setFlipX(true);
-  } else {
-    player.setFlipX(false);
-  }
+  isFlipX = calculateFlipX(player, self.customCursor);
+  
 
   if (self.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W).isDown) {
     dy -= 1;
@@ -171,17 +159,20 @@ function move() {
 
   player.x += dx * moveSpeed;
   player.y += dy * moveSpeed;
-   // emit player movement
-   var x = player.x;
-   var y = player.y;
-   if (player.oldPosition && (x !== player.oldPosition.x || y !== player.oldPosition.y)) {
-    self.socket.emit('playerMovement', { x: player.x, y: player.y});
-   }
+
+  self.socket.emit('playerMovement', {
+    x: player.x,
+    y: player.y,
+    isMoving: isMoving,
+    flipX: isFlipX, // Добавьте flipX в данные о движении
+  });
    // save old position data
    player.oldPosition = {
      x: player.x,
      y: player.y,
    };
+
+  
   
 }
 

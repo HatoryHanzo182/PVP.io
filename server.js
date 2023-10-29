@@ -41,12 +41,16 @@ io.on('connection', (socket) => {
   socket.on('playerMovement', (movementData) => {
     players[socket.id].x = movementData.x;
     players[socket.id].y = movementData.y;
-    players[socket.id].rotation = movementData.rotation;
     players[socket.id].isMoving = movementData.isMoving;
     players[socket.id].flipX = movementData.flipX; // Обновляем flipX
-  
-    // Теперь отправляем информацию о движении и flipX всем клиентам
-    socket.broadcast.emit('playerMoved', players[socket.id]);
+  // Теперь отправляем информацию о движении и flipX всем клиентам, включая отправившего
+  io.emit('playerMoved', players[socket.id]);
+
+  // Дополнительно отправьте информацию о flipX только другим клиентам (исключая отправившего)
+  socket.broadcast.emit('flipXUpdate', {
+    playerId: socket.id,
+    flipX: movementData.flipX,
+  });
   });
 
   // Добавим обработку события "новый игрок" и отправку информации о нем текущему игроку
