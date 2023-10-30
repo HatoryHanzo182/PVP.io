@@ -20,8 +20,10 @@ body {
   border-radius: 5px;
   background: #ffffff;
   font-size: 15px;
+
   color: #000000;
   text-align: center;
+
   margin: 10px;
   font-family: "8BIT WONDER", sans-serif;
 }
@@ -40,4 +42,8 @@ body {
   color: white;
   text-align: center;
   margin: 10px;
+}
+
+.menu-btn:hover {
+  background: rgb(24, 24, 24);
 }
