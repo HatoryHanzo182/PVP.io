@@ -168,6 +168,13 @@ function move() {
     isMoving = false;
   }
 
+  // Нормализация вектора движения по диагонали
+  const magnitude = Math.sqrt(dx * dx + dy * dy);
+  if (magnitude !== 0) {
+    dx /= magnitude;
+    dy /= magnitude;
+  }
+
   player.x += dx * moveSpeed;
   player.y += dy * moveSpeed;
 
