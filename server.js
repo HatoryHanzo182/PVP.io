@@ -12,8 +12,8 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
-app.get("/menu", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "menu.html"));
+app.get("/game", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "game.html"));
 });
 
 io.on("connection", (socket) => {

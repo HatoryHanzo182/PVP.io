@@ -5,6 +5,10 @@ body {
   background: #ffffff;
 }
 
+a-btn {
+  text-decoration: none;
+  cursor: pointer;
+}
 .menu {
   display: flex;
   flex-direction: column;
@@ -42,6 +46,7 @@ body {
   color: white;
   text-align: center;
   margin: 10px;
+  cursor: pointer;
 }
 
 .menu-btn:hover {
