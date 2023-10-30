@@ -1,0 +1,43 @@
+/* Create 8bit style menu with CSS */
+body {
+  padding: 0px;
+  margin: 0px;
+  background: #ffffff;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.menu-input {
+  width: 300px;
+  height: 50px;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  background: #ffffff;
+  font-size: 15px;
+  color: #000000;
+  text-align: center;
+  margin: 10px;
+  font-family: "8BIT WONDER", sans-serif;
+}
+
+.menu-btn {
+  font-family: "8BIT WONDER", sans-serif;
+
+  width: 300px;
+  height: 50px;
+
+  border: 1px solid #000000;
+  border-radius: 5px;
+
+  background: black;
+  font-size: 20px;
+  color: white;
+  text-align: center;
+  margin: 10px;
+}
