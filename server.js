@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
+const path = require('path');
 
 var players = {};
 
@@ -10,6 +11,8 @@ app.use(express.static(__dirname + '/public'));
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
+
+app.get('/menu', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'menu.html')); });
 
 io.on('connection', (socket) => {
   console.log('Пользователь подключился: ', socket.id);
@@ -66,5 +69,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(8081, () => {
-  console.log(`Сервер слушает порт: ${server.address().port}`);
+  console.log(`Server is spinning: -> 🍕 http://localhost:8081/`);
 });
