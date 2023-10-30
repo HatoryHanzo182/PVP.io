@@ -16,12 +16,13 @@ app.get("/game", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "game.html"));
 });
 
-io.on("connection", (socket) => {
+io.on("connection", (socket) => 
+{
   console.log("Пользователь подключился: ", socket.id);
 
   players[socket.id] = {
     rotation: 0,
-    x: Math.floor(Math.random() * 700) + 50,
+    x: Math.floor(Math.random() * 700) + 50,  
     y: Math.floor(Math.random() * 500) + 50,
     playerId: socket.id,
     isMoving: false, // Добавляем информацию о состоянии движения
