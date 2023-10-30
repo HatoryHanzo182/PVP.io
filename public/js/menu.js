@@ -7,6 +7,8 @@ function SaveGamerSession()
     else
     {
         // Леша выведи сообщение об ошибке в html.
+
+        // И скинь фотку писюна
     }
 }
 
