@@ -11,6 +11,16 @@ const config = {
   backgroundColor: 0x242424 // Задать цвет фона в формате 0xRRGGBB
 };
 
+function Correctness()
+{
+  if(sessionStorage.getItem('gamer_data') === 'true')
+    console.log("Access is allowed")
+  else
+    window.location.href = "/";
+}
+
+Correctness();
+
 const game = new Phaser.Game(config);
 
 let player;

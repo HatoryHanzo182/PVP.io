@@ -20,6 +20,10 @@ io.on("connection", (socket) =>
 {
   console.log("Пользователь подключился: ", socket.id);
 
+  const socketData = { player_id: socket.id };
+  
+  socket.socketData = socketData;
+
   players[socket.id] = {
     rotation: 0,
     x: Math.floor(Math.random() * 700) + 50,  
