@@ -49,6 +49,95 @@ a-btn {
   cursor: pointer;
 }
 
+.a-btn,
 .menu-btn:hover {
-  background: rgb(24, 24, 24);
+  background: rgb(31, 31, 31);
 }
+
+.error-input {
+  color: red;
+  font-size: 10px;
+  font-family: "8BIT WONDER", sans-serif;
+}
+
+/* CHat */
+
+.chat-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #f0f0f0;
+
+  border-radius: 5px;
+}
+
+.open-button {
+  background-color: black;
+  color: white;
+  border-radius: 25%;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.chat-box {
+  display: none;
+  flex-direction: column;
+  width: 500px;
+}
+
+.chat-content {
+  padding: 10px;
+  overflow-y: auto;
+  max-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-input {
+  display: flex;
+  padding: 10px;
+}
+
+.inpt {
+  flex: 1;
+  padding: 5px;
+}
+
+button {
+  background-color: #008cba;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.user-nickname {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.user-message {
+  align-self: flex-end;
+  background-color: #008cba;
+  color: white;
+  border-radius: 10px;
+  padding: 5px;
+  margin: 5px;
+}
+
+.received-message {
+  align-self: flex-start;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 5px;
+  margin: 5px;
+}
+
+/* Add styles for the chat container, chat input, etc. as needed */

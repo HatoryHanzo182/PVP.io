@@ -5,14 +5,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./menu.css" />
     <link href="https://fonts.cdnfonts.com/css/8bit-wonder" rel="stylesheet" />
-    <title>⚔</title>
+    <script
+      src="https://kit.fontawesome.com/a076d05399.js"
+      crossorigin="anonymous"
+    ></script>
+    <title>Magica 🧙‍♂️</title>
   </head>
   <body>
     <div class="menu">
-      <input id="input" type="text" placeholder="Enter your nickname" class="menu-input" />
-      <button type="button" class="menu-btn" onclick="SaveGamerSession()">Play</button>
+      <input
+        id="input"
+        type="text"
+        placeholder="Enter your nickname"
+        required
+        class="menu-input"
+      />
+      <span class="error-input" id="error-input"></span>
+      <button type="button" class="menu-btn" onclick="SaveGamerSession()">
+        Play
+      </button>
     </div>
+
+    <!-- Chat -->
+
+    <div class="chat-container">
+      <button class="open-button" onclick="toggleChat()">Chat</button>
+      <div class="chat-box" id="chat-box">
+        <div class="chat-content">
+          <!-- Chat messages go here -->
+          <div class="message user-message">
+            <span class="user-nickname">You:</span>
+            <span class="message-text"
+              >This is a user message on the right.</span
+            >
+          </div>
+          <div class="message received-message">
+            <span class="user-nickname">John:</span>
+            <span class="message-text"
+              >This is a received message on the left.</span
+            >
+          </div>
+          <!-- Add more messages with appropriate classes as needed -->
+        </div>
+        <div class="chat-input">
+          <input
+            class="inpt"
+            type="text"
+            id="message"
+            placeholder="Type your message..."
+          />
+          <button onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="chat-container">
+      <button class="open-button" onclick="toggleChat()">Chat</button>
+
+      <div class="chat-box" id="chat-box">
+        <div class="chat-content">
+          <div class="message">
+            <div class="user-nickname">User 1:</div>
+            <div class="message-content">
+              This is a user message on the right.
+            </div>
+          </div>
+          <div class="message">
+            <div class="user-nickname">User 2:</div>
+            <div class="message-content">
+              This is a received message on the left.
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chat-input">
+          <input
+            class="inpt"
+            type="text"
+            id="message"
+            placeholder="Type your message..."
+          />
+          <button onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div> -->
   </body>
   <script src="./js/menu.js"></script>
-  
 </html>
