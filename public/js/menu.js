@@ -20,37 +20,6 @@ function InputValidityData(nick)
   return regex.test(nick);
 }
 
-// function toggleChat() {
-//   var chatBox = document.getElementById("chat-box");
-//   chatBox.style.display = chatBox.style.display === "none" ? "block" : "none";
-// }
-
-// function sendMessage() {
-//   var messageInput = document.getElementById("message");
-//   var messageText = messageInput.value;
-
-//   if (messageText.trim() === "") return;
-
-//   var chatContent = document.querySelector(".chat-content");
-//   var messageElement = document.createElement("div");
-//   var userNickname = document.createElement("div");
-//   var messageContent = document.createElement("div");
-
-//   userNickname.textContent = "You:"; // Change this dynamically based on the user
-//   userNickname.classList.add("user-nickname");
-//   messageElement.classList.add("message");
-
-//   messageContent.textContent = messageText;
-//   messageContent.classList.add("user-message");
-
-//   messageElement.appendChild(userNickname);
-//   messageElement.appendChild(messageContent);
-
-//   chatContent.appendChild(messageElement);
-
-//   messageInput.value = "";
-// }
-
 // == Chat container. ==
 function toggleChat() 
 {
@@ -72,8 +41,10 @@ function sendMessage()
         error_element.innerHTML = "To send a message, enter your nickname!";
         return;
     }
-        
+
     socket.emit("chatMessage", { user: nickname, text: message_text });
+    
+    ConstructMessage("user-message", { user: nickname, text: message_text });
   
     message_input.value = "";
     error_element.innerHTML = "";
@@ -81,23 +52,58 @@ function sendMessage()
 
 socket.on("chatMessage", (message) => 
 {
-  var chat_content = document.querySelector(".chat-content");
-  var message_element = document.createElement("div");
- 
-  message_element.classList.add("message");
-
-  var user_nickname_element = document.createElement("span");
-  
-  user_nickname_element.classList.add("user-nickname");
-  user_nickname_element.textContent = message.user + ":";
-
-  var message_text_element = document.createElement("span");
-  
-  message_text_element.classList.add("message-text");
-  message_text_element.textContent = message.text;
-
-  message_element.appendChild(user_nickname_element);
-  message_element.appendChild(message_text_element);
-  chat_content.appendChild(message_element);
+    ConstructMessage("received-message", message);
 });
+
+function ConstructMessage(is, message)
+{
+    switch(is)
+    {
+        case "user-message":
+        {
+            var chat_content = document.querySelector(".chat-content");
+            var message_element = document.createElement("div");
+           
+            message_element.classList.add("user-message");
+          
+            var user_nickname_element = document.createElement("span");
+            
+            user_nickname_element.classList.add("user-nickname");
+            user_nickname_element.textContent = message.user + ":";
+          
+            var message_text_element = document.createElement("span");
+            
+            message_text_element.classList.add("message-text");
+            message_text_element.textContent = message.text;
+          
+            message_element.appendChild(user_nickname_element);
+            message_element.appendChild(message_text_element);
+            chat_content.appendChild(message_element);
+            break;
+        }
+        case "received-message":
+        {
+            var chat_content = document.querySelector(".chat-content");
+            var message_element = document.createElement("div");
+           
+            message_element.classList.add("received-message");
+          
+            var user_nickname_element = document.createElement("span");
+            
+            user_nickname_element.classList.add("user-nickname");
+            user_nickname_element.textContent = message.user + ":";
+          
+            var message_text_element = document.createElement("span");
+            
+            message_text_element.classList.add("message-text");
+            message_text_element.textContent = message.text;
+          
+            message_element.appendChild(user_nickname_element);
+            message_element.appendChild(message_text_element);
+            chat_content.appendChild(message_element);
+            break;
+        }
+    }
+
+}
 // ==

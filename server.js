@@ -49,7 +49,7 @@ io.on("connection", (socket) =>
   {
     console.log(`📧 MESSAGE SEND CONFIRMED: ${JSON.stringify(message)}`);
 
-    io.emit("chatMessage", message);
+    socket.broadcast.emit("chatMessage", message);
   });
   // ==
 
