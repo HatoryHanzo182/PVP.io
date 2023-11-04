@@ -44,6 +44,15 @@ io.on("connection", (socket) =>
     io.emit("disconnect", socket.id);
   });
 
+  // == Chat container. ==
+  socket.on("chatMessage", (message) => 
+  {
+    console.log(`📧 MESSAGE SEND CONFIRMED: ${JSON.stringify(message)}`);
+
+    io.emit("chatMessage", message);
+  });
+  // ==
+
   socket.on("playerMovement", (movementData) => {
     players[socket.id].x = movementData.x;
     players[socket.id].y = movementData.y;

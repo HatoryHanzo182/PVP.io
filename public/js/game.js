@@ -11,15 +11,17 @@ const config = {
   backgroundColor: 0x242424 // Задать цвет фона в формате 0xRRGGBB
 };
 
+// == Natural session check. == 
 function Correctness()
 {
-  if(sessionStorage.getItem('gamer_data') === 'true')
+  if(sessionStorage.getItem('in_session') === 'true')
     console.log("Access is allowed")
   else
     window.location.href = "/";
 }
 
 Correctness();
+// == 
 
 const game = new Phaser.Game(config);
 
