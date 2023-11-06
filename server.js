@@ -3,7 +3,7 @@ const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
 const path = require("path");
-const mysql = require('mysql2');
+const mysql = require("mysql2");
 
 var players = {};
 
@@ -17,17 +17,16 @@ app.get("/game", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "game.html"));
 });
 
-io.on("connection", (socket) => 
-{
+io.on("connection", (socket) => {
   console.log("Пользователь подключился: ", socket.id);
 
   const socketData = { player_id: socket.id };
-  
+
   socket.socketData = socketData;
 
   players[socket.id] = {
     rotation: 0,
-    x: Math.floor(Math.random() * 700) + 50,  
+    x: Math.floor(Math.random() * 700) + 50,
     y: Math.floor(Math.random() * 500) + 50,
     playerId: socket.id,
     isMoving: false, // Добавляем информацию о состоянии движения
@@ -46,16 +45,13 @@ io.on("connection", (socket) =>
   });
 
   // == Chat container. ==
-  socket.on("chatMessage", (message) => 
-  {
-    const sql = 'INSERT INTO ChatHistory (nickname, message) VALUES (?, ?)';
-   
-    db.query(sql, [message.user, message.text], (err, result) => 
-    {
-      if (err) 
-        console.error('Ошибка при вставке сообщения в базу данных:', err);
-      else 
-        console.log(`📧 MESSAGE SEND CONFIRMED: ${JSON.stringify(message)}`);
+  socket.on("chatMessage", (message) => {
+    const sql = "INSERT INTO ChatHistory (nickname, message) VALUES (?, ?)";
+
+    db.query(sql, [message.user, message.text], (err, result) => {
+      if (err)
+        console.error("Ошибка при вставке сообщения в базу данных:", err);
+      else console.log(`📧 MESSAGE SEND CONFIRMED: ${JSON.stringify(message)}`);
     });
 
     socket.broadcast.emit("chatMessage", message);
@@ -90,31 +86,19 @@ io.on("connection", (socket) =>
 });
 
 // == DB CHAT SECTOR ==
-const db = mysql.createConnection(
-{
+const db = mysql.createConnection({
   host: "127.0.0.1",
   user: "root",
   password: "root",
 });
 
-db.connect(err => 
-{
-  if (err) 
-  {
-    console.error('Error connecting to database:', err);
-    return;
-  }
-
-  db.query('CREATE DATABASE IF NOT EXISTS pvp_db', (err, result) => 
-  {
-    if (err) 
-      console.error('Error creating database:', err);
+db.connect((err) => {
+  db.query("CREATE DATABASE IF NOT EXISTS pvp_db", (err, result) => {
+    if (err) console.error("Error creating database:", err);
   });
-  
-  db.changeUser({ database: 'pvp_db' }, err => 
-  {
-    if (err)
-      console.error('Error when changing database:', err);
+
+  db.changeUser({ database: "pvp_db" }, (err) => {
+    if (err) console.error("Error when changing database:", err);
   });
 
   db.query(`
@@ -126,8 +110,15 @@ db.connect(err =>
       date_sent TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
 
-  console.log('💾Connected to base [true]');
+  if (err) {
+    console.error("Error connecting to database:", err);
+    return;
+  }
+
+  console.log("💾Connected to base [true]");
 });
 // ==
 
-server.listen(8081, () => { console.log(`Server is spinning: -> 🍕 http://localhost:8081/`); });
+server.listen(8081, () => {
+  console.log(`Server is spinning: -> 🍕 http://localhost:8081/`);
+});

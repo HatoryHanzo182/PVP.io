@@ -15,18 +15,17 @@ function InputValidityData(nick) {
   return regex.test(nick);
 }
 
-<<<<<<< HEAD
+
 // == Chat container. ==
-function toggleChat() 
-{
-=======
+
+
 function toggleChat() {
->>>>>>> ef3835e (settings)
+
   var chatBox = document.getElementById("chat-box");
   chatBox.style.display = chatBox.style.display === "none" ? "block" : "none";
 }
 
-<<<<<<< HEAD
+
 function sendMessage() 
 {
     var nickname = document.getElementById("input").value;
@@ -106,7 +105,7 @@ function ConstructMessage(is, message)
     }
 }
 // ==
-=======
+
 function sendMessage() {
   var nickname = document.getElementById("input").value;
   var message_input = document.getElementById("message");
@@ -182,4 +181,4 @@ function toggleSettings() {
   var settings = document.getElementById("settings-box");
   settings.style.display = settings.style.display === "none" ? "block" : "none";
 }
->>>>>>> ef3835e (settings)
+
