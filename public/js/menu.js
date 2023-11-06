@@ -51,53 +51,36 @@ socket.on("chatMessage", (message) =>
 
 function ConstructMessage(is, message)
 {
+    var chat_content = document.querySelector(".chat-content");
+    var message_element = document.createElement("div");
+
     switch(is)
     {
         case "user-message":
         {
-            var chat_content = document.querySelector(".chat-content");
-            var message_element = document.createElement("div");
-           
             message_element.classList.add("user-message");
-          
-            var user_nickname_element = document.createElement("span");
-            
-            user_nickname_element.classList.add("user-nickname");
-            user_nickname_element.textContent = message.user + ":";
-          
-            var message_text_element = document.createElement("span");
-            
-            message_text_element.classList.add("message-text");
-            message_text_element.textContent = message.text;
-          
-            message_element.appendChild(user_nickname_element);
-            message_element.appendChild(message_text_element);
-            chat_content.appendChild(message_element);
             break;
         }
         case "received-message":
         {
-            var chat_content = document.querySelector(".chat-content");
-            var message_element = document.createElement("div");
-           
             message_element.classList.add("received-message");
-          
-            var user_nickname_element = document.createElement("span");
-            
-            user_nickname_element.classList.add("user-nickname");
-            user_nickname_element.textContent = message.user + ":";
-          
-            var message_text_element = document.createElement("span");
-            
-            message_text_element.classList.add("message-text");
-            message_text_element.textContent = message.text;
-          
-            message_element.appendChild(user_nickname_element);
-            message_element.appendChild(message_text_element);
-            chat_content.appendChild(message_element);
             break;
         }
     }
+
+    var user_nickname_element = document.createElement("span");
+            
+    user_nickname_element.classList.add("user-nickname");
+    user_nickname_element.textContent = message.user + ":";
+  
+    var message_text_element = document.createElement("span");
+    
+    message_text_element.classList.add("message-text");
+    message_text_element.textContent = message.text;
+  
+    message_element.appendChild(user_nickname_element);
+    message_element.appendChild(message_text_element);
+    chat_content.appendChild(message_element);
 }
 // ==
 
@@ -110,14 +93,34 @@ function toggleSettings()
 
 function SaveDataSeting()
 {
-    const chat_history_num = document.getElementById("historychat-number-setting").value;
+    ChatHistory();
+}
 
-    fetch(`/getChatHistory/${chat_history_num}`).then((response) => response.json()).then((data) => 
+function ChatHistory()
+{
+    const chat_history_checkbox = document.getElementById("chat-history-checkbox");
+
+    if (chat_history_checkbox.checked) 
+    {   
+        ChatHistoryLimit(document.getElementById("historychat-number-setting").value);
+    } 
+    else 
     {
-        const chat_сontent = document.querySelector(".chat-content");
-        chat_сontent.innerHTML = '';
+        const chatContent = document.querySelector(".chat-content");
+        chatContent.innerHTML = "";
+    }
+}
+
+function ChatHistoryLimit(limit)
+{
+    if(limit == "")
+        return;
+
+    fetch(`/getChatHistory/${limit}`).then((response) => response.json()).then((data) => 
+    {
+        const chat_content = document.querySelector(".chat-content");
+        chat_content.innerHTML = '';
     
-        
         data.reverse().forEach((message) => 
         { 
             ConstructMessage("received-message", { user: message.nickname, text: message.message }); 
