@@ -4,6 +4,7 @@ const server = require("http").Server(app);
 const io = require("socket.io")(server);
 const path = require("path");
 const mysql = require("mysql2");
+const CronJob = require('cron').CronJob;
 
 var players = {};
 
@@ -127,6 +128,20 @@ app.get('/getChatHistory/:limit', (req, res) =>
     res.json(rows);
   });
 });
+
+const job = new CronJob('0 0 * * 1', () => 
+{
+  const one_week_ago = new Date();
+
+  one_week_ago.setDate(one_week_ago.getDate() - 7);
+
+  db.query('DELETE FROM ChatHistory WHERE date_sent < ?', [one_week_ago], (err, result) => 
+  {
+      console.log('🔨Scheduled server cleanup was successful');
+  });
+});
+
+job.start();
 // ==
 
 server.listen(8081, () => { console.log(`Server is spinning: -> 🍕 http://localhost:8081/`); });
