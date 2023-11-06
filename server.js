@@ -117,8 +117,16 @@ db.connect((err) => {
 
   console.log("💾Connected to base [true]");
 });
+
+app.get('/getChatHistory/:limit', (req, res) => 
+{
+  const limit = parseInt(req.params.limit, 10);
+  
+  db.query('SELECT * FROM ChatHistory ORDER BY date_sent DESC LIMIT ?', [limit], (err, rows) => 
+  {
+    res.json(rows);
+  });
+});
 // ==
 
-server.listen(8081, () => {
-  console.log(`Server is spinning: -> 🍕 http://localhost:8081/`);
-});
+server.listen(8081, () => { console.log(`Server is spinning: -> 🍕 http://localhost:8081/`); });
