@@ -102,7 +102,7 @@ db.connect((err) => {
   });
 
   db.query(`
-    CREATE TABLE IF NOT EXISTS chat_history 
+    CREATE TABLE IF NOT EXISTS ChatHistory 
     (
       id INT PRIMARY KEY AUTO_INCREMENT, 
       nickname VARCHAR(50), 
