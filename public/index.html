@@ -9,8 +9,26 @@
       src="https://kit.fontawesome.com/a076d05399.js"
       crossorigin="anonymous"
     ></script> -->
+
     <title>Magica 🧙‍♂️</title>
   </head>
+
+  <!-- Settings -->
+  <header>
+    <div class="settings-container">
+      <button class="open-settings" onclick="toggleSettings()">
+        <img src="./assets/settings.png" alt="settings" />
+      </button>
+      <div class="settings-box" id="settings-box">
+        <div class="settings-content">
+          <p>Chat history <input type="checkbox" /></p>
+          <p>History <input type="number" min="1" max="100"</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
   <body>
     <div class="menu">
       <input
@@ -29,23 +47,13 @@
     <!-- Chat -->
 
     <div class="chat-container">
-      <button class="open-button" onclick="toggleChat()">Chat</button>
+      <button class="open-button" onclick="toggleChat()">
+        <img src="./assets/chat.png" alt="Chat" />
+      </button>
       <div class="chat-box" id="chat-box">
         <div class="chat-content">
-          <!-- Chat messages go here -->
-          <div class="message user-message">
-            <span class="user-nickname">You:</span>
-            <span class="message-text"
-              >This is a user message on the right.</span
-            >
-          </div>
-          <div class="message received-message">
-            <span class="user-nickname">John:</span>
-            <span class="message-text"
-              >This is a received message on the left.</span
-            >
-          </div>
-          <!-- Add more messages with appropriate classes as needed -->
+          <div class="user-message" id="user"></div>
+          <div class="received-message"></div>
         </div>
         <div class="chat-input">
           <input
@@ -54,41 +62,10 @@
             id="message"
             placeholder="Type your message..."
           />
-          <button onclick="sendMessage()">Send</button>
+          <button class="btn-send" onclick="sendMessage()">Send</button>
         </div>
       </div>
     </div>
-    <!-- <div class="chat-container">
-      <button class="open-button" onclick="toggleChat()">Chat</button>
-
-      <div class="chat-box" id="chat-box">
-        <div class="chat-content">
-          <div class="message">
-            <div class="user-nickname">User 1:</div>
-            <div class="message-content">
-              This is a user message on the right.
-            </div>
-          </div>
-          <div class="message">
-            <div class="user-nickname">User 2:</div>
-            <div class="message-content">
-              This is a received message on the left.
-            </div>
-          </div>
-
-        </div>
-
-        <div class="chat-input">
-          <input
-            class="inpt"
-            type="text"
-            id="message"
-            placeholder="Type your message..."
-          />
-          <button onclick="sendMessage()">Send</button>
-        </div>
-      </div>
-    </div> -->
   </body>
   <script src="/socket.io/socket.io.js"></script>
   <script src="./js/menu.js"></script>

@@ -11,8 +11,13 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.3",
+<<<<<<< HEAD
     "mysql2": "^3.6.3",
     "socket.io": "^2.1.0"
+=======
+    "socket.io": "^2.1.0",
+    "socketio": "^1.0.0"
+>>>>>>> ef3835e (settings)
   },
   "keywords": []
 }

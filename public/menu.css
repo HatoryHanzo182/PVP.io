@@ -5,7 +5,7 @@ body {
   background: #ffffff;
 }
 
-a-btn {
+.a-btn {
   text-decoration: none;
   cursor: pointer;
 }
@@ -66,16 +66,19 @@ a-btn {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: #f0f0f0;
-
+  background-color: white;
+  border: 1px solid #ccc;
   border-radius: 5px;
 }
 
 .open-button {
-  background-color: black;
   color: white;
   border-radius: 25%;
-  padding: 10px 15px;
+  padding: 5px 10px;
+  cursor: pointer;
+  border: none;
+  padding: 5px 10px;
+  background-color: white;
   cursor: pointer;
 }
 
@@ -103,11 +106,10 @@ a-btn {
   padding: 5px;
 }
 
-button {
-  background-color: #008cba;
-  color: white;
+.btn-send {
   border: none;
   padding: 5px 10px;
+  background-color: #008cba;
   cursor: pointer;
 }
 
@@ -141,3 +143,56 @@ button {
 }
 
 /* Add styles for the chat container, chat input, etc. as needed */
+
+/* .settings-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+
+  border-radius: 5px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.open-settings {
+  border: none;
+
+  background-color: white;
+  cursor: pointer;
+} */
+
+.settings-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.open-settings {
+  color: white;
+  border-radius: 25%;
+  padding: 5px 10px;
+  cursor: pointer;
+  border: none;
+  padding: 5px 10px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.settings-box {
+  display: none;
+  flex-direction: column;
+  width: 150px;
+}
+
+.settings-content {
+  padding: 5px;
+
+  max-height: 200px;
+}
+
+.settings-content p {
+  text-align: center;
+}
