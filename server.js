@@ -3,6 +3,7 @@ const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
 const path = require("path");
+const mysql = require('mysql2');
 
 var players = {};
 
@@ -47,7 +48,15 @@ io.on("connection", (socket) =>
   // == Chat container. ==
   socket.on("chatMessage", (message) => 
   {
-    console.log(`📧 MESSAGE SEND CONFIRMED: ${JSON.stringify(message)}`);
+    const sql = 'INSERT INTO ChatHistory (nickname, message) VALUES (?, ?)';
+   
+    db.query(sql, [message.user, message.text], (err, result) => 
+    {
+      if (err) 
+        console.error('Ошибка при вставке сообщения в базу данных:', err);
+      else 
+        console.log(`📧 MESSAGE SEND CONFIRMED: ${JSON.stringify(message)}`);
+    });
 
     socket.broadcast.emit("chatMessage", message);
   });
@@ -80,6 +89,45 @@ io.on("connection", (socket) =>
   });
 });
 
-server.listen(8081, () => {
-  console.log(`Server is spinning: -> 🍕 http://localhost:8081/`);
+// == DB CHAT SECTOR ==
+const db = mysql.createConnection(
+{
+  host: "127.0.0.1",
+  user: "root",
+  password: "root",
 });
+
+db.connect(err => 
+{
+  if (err) 
+  {
+    console.error('Error connecting to database:', err);
+    return;
+  }
+
+  db.query('CREATE DATABASE IF NOT EXISTS pvp_db', (err, result) => 
+  {
+    if (err) 
+      console.error('Error creating database:', err);
+  });
+  
+  db.changeUser({ database: 'pvp_db' }, err => 
+  {
+    if (err)
+      console.error('Error when changing database:', err);
+  });
+
+  db.query(`
+    CREATE TABLE IF NOT EXISTS chat_history 
+    (
+      id INT PRIMARY KEY AUTO_INCREMENT, 
+      nickname VARCHAR(50), 
+      message VARCHAR(1000),
+      date_sent TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`);
+
+  console.log('💾Connected to base [true]');
+});
+// ==
+
+server.listen(8081, () => { console.log(`Server is spinning: -> 🍕 http://localhost:8081/`); });

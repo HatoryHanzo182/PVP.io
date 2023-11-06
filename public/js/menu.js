@@ -104,6 +104,5 @@ function ConstructMessage(is, message)
             break;
         }
     }
-
 }
 // ==

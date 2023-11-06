@@ -202,12 +202,7 @@ function move() {
      x: player.x,
      y: player.y,
    };
-
-  
-  
 }
-
- 
 
 function addPlayer(self, playerInfo) {
   self.player = self.add.sprite(playerInfo.x, playerInfo.y, 'playerIdle');
