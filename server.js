@@ -5,27 +5,36 @@ const io = require("socket.io")(server);
 const path = require("path");
 const mysql = require("mysql2");
 const CronJob = require('cron').CronJob;
+const compression = require("compression");
+const zlib = require("zlib");
 
 var players = {};
 
 app.use(express.static(__dirname + "/public"));
+app.use(compression());
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
+app.get("/", (req, res) => 
+{
+  res.setHeader("Content-Encoding", "gzip"); 
+  res.sendFile(__dirname + "/index.html", 
+  {
+    method: 'GET',
+    headers: { "Content-Type": "text/html" } 
+  }).pipe(zlib.createGzip());
 });
 
-app.get("/game", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "game.html"));
-});
+app.get("/game", (req, res) => { res.sendFile(path.join(__dirname, "public", "game.html")); });
 
-io.on("connection", (socket) => {
+io.on("connection", (socket) => 
+{
   console.log("Пользователь подключился: ", socket.id);
 
   const socketData = { player_id: socket.id };
 
   socket.socketData = socketData;
 
-  players[socket.id] = {
+  players[socket.id] = 
+  {
     rotation: 0,
     x: Math.floor(Math.random() * 700) + 50,
     y: Math.floor(Math.random() * 500) + 50,
@@ -46,13 +55,16 @@ io.on("connection", (socket) => {
   });
 
   // == Chat container. ==
-  socket.on("chatMessage", (message) => {
+  socket.on("chatMessage", (message) => 
+  {
     const sql = "INSERT INTO ChatHistory (nickname, message) VALUES (?, ?)";
 
-    db.query(sql, [message.user, message.text], (err, result) => {
+    db.query(sql, [message.user, message.text], (err, result) => 
+    {
       if (err)
         console.error("Ошибка при вставке сообщения в базу данных:", err);
-      else console.log(`📧 MESSAGE SEND CONFIRMED: ${JSON.stringify(message)}`);
+      else 
+        console.log(`📧 MESSAGE SEND CONFIRMED: ${JSON.stringify(message)}`);
     });
 
     socket.broadcast.emit("chatMessage", message);
@@ -87,19 +99,25 @@ io.on("connection", (socket) => {
 });
 
 // == DB CHAT SECTOR ==
-const db = mysql.createConnection({
+const db = mysql.createConnection(
+{
   host: "127.0.0.1",
   user: "root",
   password: "root",
 });
 
-db.connect((err) => {
-  db.query("CREATE DATABASE IF NOT EXISTS pvp_db", (err, result) => {
-    if (err) console.error("Error creating database:", err);
+db.connect((err) => 
+{
+  db.query("CREATE DATABASE IF NOT EXISTS pvp_db", (err, result) => 
+  {
+    if (err) 
+      console.error("Error creating database:", err);
   });
 
-  db.changeUser({ database: "pvp_db" }, (err) => {
-    if (err) console.error("Error when changing database:", err);
+  db.changeUser({ database: "pvp_db" }, (err) => 
+  {
+    if (err) 
+      console.error("Error when changing database:", err);
   });
 
   db.query(`
@@ -111,7 +129,8 @@ db.connect((err) => {
       date_sent TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
 
-  if (err) {
+  if (err) 
+  {
     console.error("Error connecting to database:", err);
     return;
   }
@@ -125,7 +144,19 @@ app.get('/getChatHistory/:limit', (req, res) =>
   
   db.query('SELECT * FROM ChatHistory ORDER BY date_sent DESC LIMIT ?', [limit], (err, rows) => 
   {
-    res.json(rows);
+    const data = JSON.stringify(rows);
+
+    zlib.gzip(data, (err, compressedData) => 
+    {
+      if (err) 
+      {
+        console.error('Error compressing data:', err);
+        return res.status(500).send('Error compressing data');
+      }
+
+      res.setHeader('Content-Encoding', 'gzip');
+      res.send(compressedData);
+    });
   });
 });
 

@@ -1,16 +1,21 @@
 const socket = io();
 
-function SaveGamerSession() {
+function SaveGamerSession() 
+{
   var nickname = document.getElementById("input").value;
-  const errorElement = document.getElementById("error-input");
+  const error_element = document.getElementById("error-input");
 
-  if (InputValidityData(nickname)) {
+  if (InputValidityData(nickname)) 
+  {
     sessionStorage.setItem("in_session", "true");
     window.location.href = "/game";
-  } else errorElement.innerHTML = "Invalid input data";
+  } 
+  else 
+    error_element.innerHTML = "Invalid input data";
 }
 
-function InputValidityData(nick) {
+function InputValidityData(nick) 
+{
   var regex = /^[A-Za-z0-9]{1,15}$/;
   return regex.test(nick);
 }
@@ -116,15 +121,30 @@ function ChatHistoryLimit(limit)
     if(limit == "")
         return;
 
-    fetch(`/getChatHistory/${limit}`).then((response) => response.json()).then((data) => 
+    fetch(`/getChatHistory/${limit}`).then((response) => 
     {
-        const chat_content = document.querySelector(".chat-content");
-        chat_content.innerHTML = '';
-    
-        data.reverse().forEach((message) => 
-        { 
-            ConstructMessage("received-message", { user: message.nickname, text: message.message }); 
-        });
-    }).catch((error) => { console.error('Error receiving chats:', error); });
+        if (response.headers.get('content-encoding') === 'gzip') 
+          return response.arrayBuffer(); 
+        else
+          return response.json();
+    }).then((data) => 
+    {
+        if (data instanceof ArrayBuffer) 
+        {
+          const decompressed_data = new TextDecoder().decode(data);
+          const json_data = JSON.parse(decompressed_data);
+          const chat_content = document.querySelector(".chat-content");
+
+          chat_content.innerHTML = '';
+          json_data.reverse().forEach((message) => { ConstructMessage("received-message", { user: message.nickname, text: message.message }); });
+        } 
+        else 
+        {
+          const chat_content = document.querySelector(".chat-content");
+          chat_content.innerHTML = '';
+      
+          data.reverse().forEach((message) => { ConstructMessage("received-message", { user: message.nickname, text: message.message }); });
+        }
+    }).catch((error) => { console.error('Error receiving chats:', error.message); });
 }
 // == 
