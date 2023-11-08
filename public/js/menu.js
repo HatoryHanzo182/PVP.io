@@ -93,14 +93,18 @@ function ChatHistory() {
   const chathistory = document.getElementById("chathistory");
 
   if (chat_history_checkbox.checked) {
+    chathistory.style.display = "block";
+  } else {
+    chathistory.style.display = "none";
+  }
+
+  if (chat_history_checkbox.checked) {
     ChatHistoryLimit(
       document.getElementById("historychat-number-setting").value
     );
-    chathistory.style.display = "block";
   } else {
     const chatContent = document.querySelector(".chat-content");
     chatContent.innerHTML = "";
-    chathistory.style.display = "none";
   }
 }
 

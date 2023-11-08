@@ -200,3 +200,28 @@ body {
 .chathistory {
   display: none;
 }
+
+/* 404 */
+
+.nf-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+.nf-name {
+  font-size: 50px;
+  font-weight: bold;
+  color: #000000;
+}
+.nf-btn {
+  font-size: 20px;
+  font-weight: bold;
+  color: #000000;
+  background-color: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+}

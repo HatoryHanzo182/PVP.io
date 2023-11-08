@@ -95,11 +95,15 @@ io.on("connection", (socket) => {
   });
 });
 
+app.use((req,res) => {
+  res.status(404).sendFile(__dirname + "/public/404.html");
+})
+
 // == DB CHAT SECTOR ==
 const db = mysql.createConnection({
   host: "127.0.0.1",
   user: "root",
-  password: "root",
+  password: "Alex960909",
 });
 
 db.connect((err) => {
