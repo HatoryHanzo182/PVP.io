@@ -21,9 +21,24 @@
       </button>
       <div class="settings-box" id="settings-box">
         <div class="settings-content">
-          <p>Chat history <input type="checkbox" id="chat-history-checkbox"/></p>
-          <p>History <input id="historychat-number-setting" type="number" min="1" max="100"></p>
-          <button type="button" onclick="SaveDataSeting()">Save</button>
+          <p>
+            Chat history <input type="checkbox" id="chat-history-checkbox" />
+          </p>
+          <div id="chathistory" class="chathistory">
+            <p class="">
+              History
+              <input
+                id="historychat-number-setting"
+                class=""
+                type="number"
+                min="1"
+                max="100"
+              />
+            </p>
+          </div>
+          <button type="button" class="save-btn" onclick="SaveDataSeting()">
+            Save
+          </button>
         </div>
       </div>
     </div>

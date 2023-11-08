@@ -4,7 +4,7 @@ const server = require("http").Server(app);
 const io = require("socket.io")(server);
 const path = require("path");
 const mysql = require("mysql2");
-const CronJob = require('cron').CronJob;
+const CronJob = require("cron").CronJob;
 
 var players = {};
 
@@ -17,6 +17,8 @@ app.get("/", (req, res) => {
 app.get("/game", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "game.html"));
 });
+
+
 
 io.on("connection", (socket) => {
   console.log("Пользователь подключился: ", socket.id);
@@ -90,7 +92,7 @@ io.on("connection", (socket) => {
 const db = mysql.createConnection({
   host: "127.0.0.1",
   user: "root",
-  password: "root",
+  password: "Alex960909",
 });
 
 db.connect((err) => {
@@ -119,29 +121,35 @@ db.connect((err) => {
   console.log("💾Connected to base [true]");
 });
 
-app.get('/getChatHistory/:limit', (req, res) => 
-{
+app.get("/getChatHistory/:limit", (req, res) => {
   const limit = parseInt(req.params.limit, 10);
-  
-  db.query('SELECT * FROM ChatHistory ORDER BY date_sent DESC LIMIT ?', [limit], (err, rows) => 
-  {
-    res.json(rows);
-  });
+
+  db.query(
+    "SELECT * FROM ChatHistory ORDER BY date_sent DESC LIMIT ?",
+    [limit],
+    (err, rows) => {
+      res.json(rows);
+    }
+  );
 });
 
-const job = new CronJob('0 0 * * 1', () => 
-{
+const job = new CronJob("0 0 * * 1", () => {
   const one_week_ago = new Date();
 
   one_week_ago.setDate(one_week_ago.getDate() - 7);
 
-  db.query('DELETE FROM ChatHistory WHERE date_sent < ?', [one_week_ago], (err, result) => 
-  {
-      console.log('🔨Scheduled server cleanup was successful');
-  });
+  db.query(
+    "DELETE FROM ChatHistory WHERE date_sent < ?",
+    [one_week_ago],
+    (err, result) => {
+      console.log("🔨Scheduled server cleanup was successful");
+    }
+  );
 });
 
 job.start();
 // ==
 
-server.listen(8081, () => { console.log(`Server is spinning: -> 🍕 http://localhost:8081/`); });
+server.listen(8081, () => {
+  console.log(`Server is spinning: -> 🍕 http://localhost:8081/`);
+});

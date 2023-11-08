@@ -196,3 +196,7 @@ body {
 .settings-content p {
   text-align: center;
 }
+
+.chathistory {
+  display: inline;
+}
