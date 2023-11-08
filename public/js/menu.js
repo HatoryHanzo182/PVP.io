@@ -90,17 +90,14 @@ function ChatHistory() {
   const chat_history_checkbox = document.getElementById(
     "chat-history-checkbox"
   );
-  const chathistory = document.getElementById("chathistory");
 
   if (chat_history_checkbox.checked) {
     ChatHistoryLimit(
       document.getElementById("historychat-number-setting").value
     );
-    chathistory.style.display = "block";
   } else {
     const chatContent = document.querySelector(".chat-content");
     chatContent.innerHTML = "";
-    chathistory.style.display = "none";
   }
 }
 

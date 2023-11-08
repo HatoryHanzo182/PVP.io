@@ -5,20 +5,27 @@ const io = require("socket.io")(server);
 const path = require("path");
 const mysql = require("mysql2");
 const CronJob = require("cron").CronJob;
+const compression = require("compression");
+const zlib = require("zlib");
 
 var players = {};
 
 app.use(express.static(__dirname + "/public"));
+app.use(compression());
 
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
+  res.setHeader("Content-Encoding", "gzip");
+  res
+    .sendFile(__dirname + "/index.html", {
+      method: "GET",
+      headers: { "Content-Type": "text/html" },
+    })
+    .pipe(zlib.createGzip());
 });
 
 app.get("/game", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "game.html"));
 });
-
-
 
 io.on("connection", (socket) => {
   console.log("Пользователь подключился: ", socket.id);
@@ -92,7 +99,7 @@ io.on("connection", (socket) => {
 const db = mysql.createConnection({
   host: "127.0.0.1",
   user: "root",
-  password: "Alex960909",
+  password: "root",
 });
 
 db.connect((err) => {
@@ -128,7 +135,17 @@ app.get("/getChatHistory/:limit", (req, res) => {
     "SELECT * FROM ChatHistory ORDER BY date_sent DESC LIMIT ?",
     [limit],
     (err, rows) => {
-      res.json(rows);
+      const data = JSON.stringify(rows);
+
+      zlib.gzip(data, (err, compressedData) => {
+        if (err) {
+          console.error("Error compressing data:", err);
+          return res.status(500).send("Error compressing data");
+        }
+
+        res.setHeader("Content-Encoding", "gzip");
+        res.send(compressedData);
+      });
     }
   );
 });
