@@ -228,8 +228,10 @@ body {
   font-size: 50px;
   font-weight: bold;
   color: #000000;
+  font-family: "8BIT WONDER", sans-serif;
 }
 .nf-btn {
+  font-family: "8BIT WONDER", sans-serif;
   font-size: 20px;
   font-weight: bold;
   color: #000000;
@@ -238,4 +240,9 @@ body {
   border-radius: 10px;
   padding: 10px;
   cursor: pointer;
+}
+
+.nf-btn:hover {
+  background-color: #000000;
+  color: #ffffff;
 }
