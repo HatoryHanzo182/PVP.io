@@ -77,6 +77,7 @@ body {
   padding: 5px 10px;
   cursor: pointer;
   border: none;
+
   padding: 5px 10px;
   background-color: white;
   cursor: pointer;
@@ -104,18 +105,24 @@ body {
 .inpt {
   flex: 1;
   padding: 5px;
+  font-family: "8BIT WONDER", sans-serif;
+  border-radius: 25px;
 }
 
 .btn-send {
   border: none;
   padding: 5px 10px;
-  background-color: #008cba;
+  background-color: #000000;
+  border-radius: 25px;
+  color: white;
+  font-family: "8BIT WONDER", sans-serif;
   cursor: pointer;
 }
 
 .user-nickname {
   font-weight: bold;
   margin-right: 5px;
+  font-family: "8BIT WONDER", sans-serif;
 }
 
 .message {
@@ -125,6 +132,8 @@ body {
 }
 
 .user-message {
+  font-family: "8BIT WONDER", sans-serif;
+  font-size: 10px;
   align-self: flex-end;
   background-color: #008cba;
   color: white;
@@ -134,6 +143,8 @@ body {
 }
 
 .received-message {
+  font-family: "8BIT WONDER", sans-serif;
+  font-size: 10px;
   align-self: flex-start;
   background-color: #f0f0f0;
   border: 1px solid #ccc;
@@ -142,24 +153,7 @@ body {
   margin: 5px;
 }
 
-/* Add styles for the chat container, chat input, etc. as needed */
-
-/* .settings-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-
-  border-radius: 5px;
-  padding: 10px;
-  cursor: pointer;
-}
-
-.open-settings {
-  border: none;
-
-  background-color: white;
-  cursor: pointer;
-} */
+/* Settings */
 
 .settings-container {
   position: fixed;
@@ -181,15 +175,35 @@ body {
   cursor: pointer;
 }
 
+.historynum {
+  font-family: "8BIT WONDER", sans-serif;
+  font-size: 10px;
+  text-align: center;
+}
+
 .settings-box {
   display: none;
   flex-direction: column;
   width: 150px;
 }
 
+.save-btn {
+  padding: 5px 10px;
+  background-color: #000000;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-family: "8BIT WONDER", sans-serif;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  margin-left: 35px;
+}
+
 .settings-content {
   padding: 5px;
-
+  font-size: 10px;
+  font-family: "8BIT WONDER", sans-serif;
   max-height: 200px;
 }
 
