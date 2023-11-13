@@ -130,7 +130,7 @@ const db = mysql.createConnection(
 {
   host: "127.0.0.1",
   user: "root",
-  password: "root",
+  password: "Alex960909",
 });
 
 db.connect((err) => 

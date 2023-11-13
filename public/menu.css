@@ -272,12 +272,42 @@ a {
   font-family: "8BIT WONDER", sans-serif;
 }
 
+.crt {
+  display: flex;
+  flex-direction: row;
+}
+
+.crt-room {
+  font-family: "8BIT WONDER", sans-serif;
+  padding: 10px;
+  cursor: pointer;
+  background-color: #000000;
+  color: #ffffff;
+  border: #000000 1px solid;
+  border-radius: 15px;
+  margin: 3px;
+}
+
+.crt-room:hover {
+  background-color: #ffffff;
+  color: #000000;
+  border: #000000 1px solid;
+}
+
 .cnt-room {
   font-family: "8BIT WONDER", sans-serif;
   border: #000000 1px solid;
   padding: 20px;
   border-radius: 15px;
   margin: 25px;
+}
+
+.room-input {
+  font-family: "8BIT WONDER", sans-serif;
+  padding: 12px;
+  border: #000000 1px solid;
+  border-radius: 15px;
+  margin: 3px;
 }
 
 .room-online {
