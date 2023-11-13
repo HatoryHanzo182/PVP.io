@@ -27,6 +27,10 @@ app.get("/game", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "game.html"));
 });
 
+app.get("/room", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "room.html"));
+});
+
 io.on("connection", (socket) => {
   console.log("Пользователь подключился: ", socket.id);
 
@@ -95,13 +99,9 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use((req, res) => {
-  res.status(404).sendFile(__dirname + "/public/404.html");
-});
-
 // == DB CHAT SECTOR ==
 const db = mysql.createConnection({
-  host: "localhost",
+  host: "127.0.0.1",
   user: "root",
   password: "Alex960909",
 });
@@ -170,6 +170,10 @@ const job = new CronJob("0 0 * * 1", () => {
 
 job.start();
 // ==
+
+app.use((req, res) => {
+  res.status(404).sendFile(__dirname + "/public/404.html");
+});
 
 server.listen(8081, () => {
   console.log(`Server is spinning: -> 🍕 http://localhost:8081/`);

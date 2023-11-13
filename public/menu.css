@@ -5,7 +5,7 @@ body {
   background: #ffffff;
 }
 
-.a-btn {
+a {
   text-decoration: none;
   cursor: pointer;
 }
@@ -243,6 +243,50 @@ body {
 }
 
 .nf-btn:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* ROOM */
+
+.room-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  justify-content: center;
+  height: 100vh;
+}
+
+.room-list {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.roomh1 {
+  justify-content: center;
+  display: flex;
+  font-family: "8BIT WONDER", sans-serif;
+}
+
+.cnt-room {
+  font-family: "8BIT WONDER", sans-serif;
+  border: #000000 1px solid;
+  padding: 20px;
+  border-radius: 15px;
+  margin: 25px;
+}
+
+.room-online {
+  font-family: "8BIT WONDER", sans-serif;
+  font-size: 8px;
+  text-align: center;
+  margin-top: 5px;
+}
+.cnt-room:hover {
   background-color: #000000;
   color: #ffffff;
 }
