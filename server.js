@@ -158,7 +158,7 @@ db.connect((err) =>
   db.query(`CREATE TABLE IF NOT EXISTS Users 
   (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    id_in_session VARCHAR(50) NOT NULL, 
+    id_in_session VARCHAR(50), 
     nickname VARCHAR(50) NOT NULL
   )`);
 
