@@ -25,6 +25,8 @@ app.get("/", (req, res) =>
 
 app.get("/game", (req, res) => { res.sendFile(path.join(__dirname, "public", "game.html")); });
 
+app.get("/room", (req, res) => { res.sendFile(path.join(__dirname, "public", "room.html")); });
+
 io.on("connection", (socket) => {
   console.log("Пользователь подключился: ", socket.id);
 
