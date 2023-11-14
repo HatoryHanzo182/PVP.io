@@ -14,7 +14,21 @@ a {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   height: 100vh;
+}
+
+.select-menu {
+  width: 150px;
+  height: 54px;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  background-color: black;
+  font-size: 15px;
+  color: #ffffff;
+  text-align: center;
+  margin: 10px;
+  font-family: "8BIT WONDER", sans-serif;
 }
 
 .menu-input {
@@ -243,80 +257,6 @@ a {
 }
 
 .nf-btn:hover {
-  background-color: #000000;
-  color: #ffffff;
-}
-
-/* ROOM */
-
-.room-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  justify-content: center;
-  height: 100vh;
-}
-
-.room-list {
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-}
-
-.roomh1 {
-  justify-content: center;
-  display: flex;
-  font-family: "8BIT WONDER", sans-serif;
-}
-
-.crt {
-  display: flex;
-  flex-direction: row;
-}
-
-.crt-room {
-  font-family: "8BIT WONDER", sans-serif;
-  padding: 10px;
-  cursor: pointer;
-  background-color: #000000;
-  color: #ffffff;
-  border: #000000 1px solid;
-  border-radius: 15px;
-  margin: 3px;
-}
-
-.crt-room:hover {
-  background-color: #ffffff;
-  color: #000000;
-  border: #000000 1px solid;
-}
-
-.cnt-room {
-  font-family: "8BIT WONDER", sans-serif;
-  border: #000000 1px solid;
-  padding: 20px;
-  border-radius: 15px;
-  margin: 25px;
-}
-
-.room-input {
-  font-family: "8BIT WONDER", sans-serif;
-  padding: 12px;
-  border: #000000 1px solid;
-  border-radius: 15px;
-  margin: 3px;
-}
-
-.room-online {
-  font-family: "8BIT WONDER", sans-serif;
-  font-size: 8px;
-  text-align: center;
-  margin-top: 5px;
-}
-.cnt-room:hover {
   background-color: #000000;
   color: #ffffff;
 }
