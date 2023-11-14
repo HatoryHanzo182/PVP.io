@@ -1,26 +1,38 @@
 const socket = io();
 
+// { ======= VALIDATION REGION.======= }
 function SaveGamerSession() 
 {
   var nickname = document.getElementById("input").value;
   const error_element = document.getElementById("error-input");
 
   if (InputValidityData(nickname)) 
-  {
-    sessionStorage.setItem("in_session", "true");
-    window.location.href = "/game";
-  } 
+    socket.emit("saveGamerSession", nickname);
   else 
     error_element.innerHTML = "Invalid input data";
 }
+
+socket.on("saveGamerSessionResponse", (response) => 
+{
+  const error_element = document.getElementById("error-input");
+
+  if (response.success) 
+  {
+    sessionStorage.setItem("in_session", "true");
+    window.location.href = "/room";
+  } 
+  else
+    error_element.innerHTML = response.error || "Error saving session";
+});
 
 function InputValidityData(nick) 
 {
   var regex = /^[A-Za-z0-9]{1,15}$/;
   return regex.test(nick);
 }
+// { ============== }
 
-// == Chat container. ==
+// { ======= Chat container. ======= }
 function toggleChat() 
 {
   var chatBox = document.getElementById("chat-box");
@@ -28,7 +40,8 @@ function toggleChat()
   chatBox.style.display = chatBox.style.display === "none" ? "block" : "none";
 }
 
-function sendMessage() {
+function sendMessage() 
+{
 
   var nickname = document.getElementById("input").value;
   var message_input = document.getElementById("message");
@@ -89,9 +102,9 @@ function ConstructMessage(is, message)
   message_element.appendChild(message_text_element);
   chat_content.appendChild(message_element);
 }
-// ==
+// { ============== }
 
-// == Setting container. ==
+// { ======= Setting container. ======= }
 function toggleSettings() 
 {
   var settings = document.getElementById("settings-box");
@@ -161,4 +174,4 @@ function ChatHistoryLimit(limit)
       }
     }).catch((error) => { console.error("Error receiving chats:", error.message); });
 }
-// ==
+// { ============== }
