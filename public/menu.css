@@ -9,13 +9,19 @@ a {
   text-decoration: none;
   cursor: pointer;
 }
+
+/*Displaying different layouts.*/
+.hidden-elements {
+  display: none;
+}
+
 .menu {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
   height: 100vh;
+  cursor: default;
 }
 
 .select-menu {
@@ -82,6 +88,7 @@ a {
   right: 20px;
   background-color: white;
   border: 1px solid #ccc;
+  cursor: default;
   border-radius: 5px;
 }
 
@@ -94,7 +101,6 @@ a {
 
   padding: 5px 10px;
   background-color: white;
-  cursor: pointer;
 }
 
 .chat-box {
@@ -176,6 +182,7 @@ a {
   background-color: white;
   border: 1px solid #ccc;
   border-radius: 5px;
+  cursor: default;
 }
 
 .open-settings {

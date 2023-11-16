@@ -9,8 +9,12 @@ const compression = require("compression");
 const zlib = require("zlib");
 
 var players = {};
+const rooms = {};
+const weapons = [];	
+let nextWeaponId = 1;
+const weaponSpawnInterval = 5000;
 
-app.use(express.static(__dirname + "/public"));
+app.use(express.static(path.join(__dirname, "public")));
 app.use(compression());
 
 app.get("/", (req, res) => 
@@ -23,12 +27,34 @@ app.get("/", (req, res) =>
   }).pipe(zlib.createGzip());
 });
 
-app.get("/game", (req, res) => { res.sendFile(path.join(__dirname, "public", "game.html")); });
-app.get("/room", (req, res) => { res.sendFile(path.join(__dirname, "public", "room.html")); });
+function spawnRandomWeapon() {
+  const x = Math.floor(Math.random() * 700) + 50;
+  const y = Math.floor(Math.random() * 500) + 50;
+  nextWeaponId++;
+  const newWeapon = {
+    id: nextWeaponId,
+    x: x,
+    y: y,
+    isPickedUp: false,
+    pool: 10,
+  };
+  weapons.push(newWeapon);
+  io.emit("newWeapon", newWeapon);
+}
+
+
+function sendWeaponsInfo(socket) {
+  weapons.forEach((weapon) => {
+    socket.emit("newWeapon", weapon);
+  });
+}
 
 io.on("connection", (socket) => 
 {
   console.log("::USER CONNECTED: ", socket.id);
+
+  const socketData = { player_id: socket.id };
+  socket.socketData = socketData;
 
   players[socket.id] = 
   {
@@ -36,13 +62,13 @@ io.on("connection", (socket) =>
     x: Math.floor(Math.random() * 700) + 50,
     y: Math.floor(Math.random() * 500) + 50,
     playerId: socket.id,
-    isMoving: false, // Добавляем информацию о состоянии движения
-    flipX: false, // Добавляем информацию о flipX
+    isMoving: false,
+    flipX: false
   };
 
-  // Отправить информацию о существующих игроках новому игроку
+  sendWeaponsInfo(socket);
+
   socket.emit("currentPlayers", players);
-  // Отправить информацию о новом игроке другим игрокам
   socket.broadcast.emit("newPlayer", players[socket.id]);
   
   // { ======= User in session container. ======= }
@@ -63,7 +89,7 @@ io.on("connection", (socket) =>
 
   function CheckUserExistence(nickname, callback) 
   {
-    const sql = "SELECT * FROM Users WHERE nickname = ?";
+    const sql = "SELECT * FROM UsersInSession WHERE nickname = ?";
     
     db.query(sql, [nickname], (err, rows) => 
     {
@@ -81,7 +107,7 @@ io.on("connection", (socket) =>
   function AddUserToDatabase(socketId, nickname) 
   {
     const user_id = socketId;
-    const sql = "INSERT INTO Users (id_in_session, nickname) VALUES (?, ?)";
+    const sql = "INSERT INTO UsersInSession (id_in_session, nickname) VALUES (?, ?)";
   
     db.query(sql, [user_id, nickname], (err, result) => 
     {
@@ -108,17 +134,21 @@ io.on("connection", (socket) =>
   // { ============== }
 
   // { ======= Room container. ======= } 
+  socket.emit("existingRooms", { rooms });
+  
   socket.on("createRoom", (roomName) => 
   {
     if (!rooms[roomName]) 
     {
       rooms[roomName] = { players: {} };
       rooms[roomName].players[socket.id] = players[socket.id];
+
       socket.join(roomName);
 
-      io.to(roomName).emit("roomCreated", rooms[roomName]);
+      io.emit("roomCreated", { roomName });
+      io.emit("existingRooms", rooms);
     } 
-    else 
+    else
       socket.emit("roomError", "A room with the same name already exists.");
   });
 
@@ -127,26 +157,78 @@ io.on("connection", (socket) =>
     if (rooms[roomName]) 
     {
       rooms[roomName].players[socket.id] = players[socket.id];
+      
       socket.join(roomName);
-
+      
       io.to(roomName).emit("roomJoined", rooms[roomName]);
+      io.emit("existingRooms", rooms);
+      
+      console.log(`User [${socket.id}] joined the room { ${roomName} }`);
     } 
-    else 
+    else
       socket.emit("roomError", "A room with the same name already exists.");
   });
+
   // { ============== }
+
+  socket.on("playerMovement", (movementData) => {
+    players[socket.id] = { ...players[socket.id], ...movementData };
+    io.emit("playerMoved", players[socket.id]);
+    socket.broadcast.emit("flipXUpdate", {
+      playerId: socket.id,
+      flipX: movementData.flipX,
+    });
+    socket.broadcast.emit("animationUpdate", {
+      playerId: socket.id,
+      animationKey: movementData.animationKey,
+    });
+  });
+
+  socket.on("pickupWeapon", (weaponId, playerId) => {
+    
+    playerId = socket.id;
+    console.log(`Игрок ${playerId} подобрал оружие с ID ${weaponId}`);
+    
+    const weapon = weapons.find((w) => w.id === weaponId);
+    if (weapon) {
+      weapon.isPickedUp = true;
+     
+      io.emit("weaponPickedUp", weaponId, socket.id);
+    }
+  });
+
+  socket.on("dropWeapons", (weaponId, playerId) => {
+    
+    playerId = socket.id;
+    console.log(`Игрок ${playerId} отпустил оружие с ID ${weaponId}`);
+    
+    const weapon = weapons.find((w) => w.id === weaponId);
+    if (weapon) {
+      weapon.isPickedUp = false;
+      io.emit("weaponDrop", weaponId, socket.id);
+      console.log(weapon.isPickedUp);
+    }
+  });
+
+  socket.on("weaponUpdates", (weaponData) => {
+    socket.broadcast.emit("weaponUpdate", weaponData);
+  });
+
+  socket.on("bulletUpdates", (bulletData) => {
+    socket.broadcast.emit("bulletUpdate", bulletData);
+  });
 
   socket.on("disconnect", () => 
   {
     console.log("::USER DISCONNECTED: ", socket.id);
 
-    const sql_select = "SELECT nickname FROM Users WHERE id_in_session = ?";
+    const sql_select = "SELECT nickname FROM UsersInSession WHERE id_in_session = ?";
 
     db.query(sql_select, [socket.id], (err, rows) => 
     {
       if (!err && rows.length > 0) 
       {
-        const sql_delete = "DELETE FROM Users WHERE id_in_session = ?";
+        const sql_delete = "DELETE FROM UsersInSession WHERE id_in_session = ?";
 
         db.query(sql_delete, [socket.id]);
       }
@@ -155,39 +237,23 @@ io.on("connection", (socket) =>
     delete players[socket.id];
     io.emit("disconnect", socket.id);
   });
-
-
-  socket.on("playerMovement", (movementData) => {
-    players[socket.id].x = movementData.x;
-    players[socket.id].y = movementData.y;
-    players[socket.id].isMoving = movementData.isMoving;
-    players[socket.id].flipX = movementData.flipX; // Обновляем flipX
-    players[socket.id].animationKey = movementData.animationKey;
-    // Теперь отправляем информацию о движении и flipX всем клиентам, включая отправившего
-    io.emit("playerMoved", players[socket.id]);
-
-    // Дополнительно отправьте информацию о flipX только другим клиентам (исключая отправившего)
-    socket.broadcast.emit("flipXUpdate", {
-      playerId: socket.id,
-      flipX: movementData.flipX,
-    });
-    // Отправляем информацию об анимации только другим клиентам (исключая отправившего)
-    socket.broadcast.emit("animationUpdate", {
-      playerId: socket.id,
-      animationKey: movementData.animationKey,
-    });
-  });
-
-  // Добавим обработку события "новый игрок" и отправку информации о нем текущему игроку
-  socket.on("newPlayer", () => { socket.emit("currentPlayers", players); });
 });
+
+function startGame(){
+  setInterval(spawnRandomWeapon, weaponSpawnInterval);
+}
+
+setTimeout(() => {
+  console.log("check");
+  startGame();
+}, 1000);
 
 // { ======= DB CHAT SECTOR. ======= } 
 const db = mysql.createConnection(
 {
   host: "127.0.0.1",
   user: "root",
-  password: "Alex960909",
+  password: "root",
 });
 
 db.connect((err) => 
@@ -212,7 +278,7 @@ db.connect((err) =>
       date_sent TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
   
-  db.query(`CREATE TABLE IF NOT EXISTS Users 
+  db.query(`CREATE TABLE IF NOT EXISTS UsersInSession 
   (
     id INT PRIMARY KEY AUTO_INCREMENT,
     id_in_session VARCHAR(50), 
