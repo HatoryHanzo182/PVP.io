@@ -9,7 +9,7 @@
   </head>
   <body>
     <!--MENU CONTENT.-->
-    <div id="menu-layout">  
+    <div id="menu-layout">
       <!-- Settings -->
       <header>
         <div class="settings-container">
@@ -20,15 +20,23 @@
             <div class="settings-content">
               <p>
                 Chat history
-                <input type="checkbox" id="chat-history-checkbox"/>
+                <input type="checkbox" id="chat-history-checkbox" />
               </p>
               <div id="chathistory" class="chathistory">
                 <p class="">
                   History
-                  <input id="historychat-number-setting" class="historynum" type="number" min="1" max="100"/>
+                  <input
+                    id="historychat-number-setting"
+                    class="historynum"
+                    type="number"
+                    min="1"
+                    max="100"
+                  />
                 </p>
               </div>
-              <button id="save-data-seting" type="button" class="save-btn">Save</button>
+              <button id="save-data-seting" type="button" class="save-btn">
+                Save
+              </button>
             </div>
           </div>
         </div>
@@ -36,19 +44,37 @@
       <!-- Main -->
       <div class="menu">
         <div>
-          <input id="input" type="text" placeholder="Enter your nickname" required class="menu-input" />
+          <input
+            id="input"
+            type="text"
+            placeholder="Enter your nickname"
+            required
+            class="menu-input"
+          />
           <select id="select" class="select-menu">
-            <option value="1">Serverfwfkwfklfwk 1</option>
-            <option value="2">Server 2</option>
+            <option value="1"></option>
+            <option value="2"></option>
           </select>
         </div>
         <span class="error-input" id="error-input"></span>
-        <button id="save-gamer-session" type="button" class="menu-btn">Join </button>
-        <br>
-        <br>
+        <button id="save-gamer-session" type="button" class="menu-btn">
+          Join
+        </button>
+        <br />
+        <br />
         <!-- Rooms. -->
-        <input id="input-room" type="text" placeholder="Enter your nickname" required class="menu-input" />
-        <button id="create-room" type="button" class="menu-btn">Create room</button>
+        <div class="r-menu">
+          <input
+            id="input-room"
+            type="text"
+            placeholder="Enter room name"
+            required
+            class="r-input"
+          />
+          <button id="create-room" type="button" class="r-btn">
+            Create room
+          </button>
+        </div>
       </div>
       <!-- Chat -->
       <div class="chat-container">
@@ -61,7 +87,12 @@
             <div class="received-message"></div>
           </div>
           <div class="chat-input">
-            <input class="inpt" type="text" id="message" placeholder="Type your message..."/>
+            <input
+              class="inpt"
+              type="text"
+              id="message"
+              placeholder="Type your message..."
+            />
             <button id="send-message" class="btn-send">Send</button>
           </div>
         </div>
@@ -82,7 +113,7 @@
         }
       </style>
       <script src="//cdn.jsdelivr.net/npm/phaser@3.3.0/dist/phaser.min.js"></script>
-      <script type="module" src="js/game.js"></script> 
+      <script type="module" src="js/game.js"></script>
     </div>
   </body>
 </html>

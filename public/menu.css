@@ -24,6 +24,43 @@ a {
   cursor: default;
 }
 
+.r-menu {
+  display: flex;
+  flex-direction: rows;
+}
+
+.r-input {
+  width: 250px;
+  height: 50px;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  background: #ffffff;
+  font-size: 15px;
+
+  color: #000000;
+  text-align: center;
+
+  margin: 10px;
+  font-family: "8BIT WONDER", sans-serif;
+}
+
+.r-btn {
+  font-family: "8BIT WONDER", sans-serif;
+
+  width: 200px;
+  height: 50px;
+
+  border: 1px solid #000000;
+  border-radius: 5px;
+
+  background: black;
+  font-size: 20px;
+  color: white;
+  text-align: center;
+  margin: 10px;
+  cursor: pointer;
+}
+
 .select-menu {
   width: 150px;
   height: 54px;
