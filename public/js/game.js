@@ -76,7 +76,7 @@ export function startGame()
   
 
     self = this;
-    this.socket = io();
+    this.socket = socket;
     
      // player = null;
     player = this.physics.add.sprite(100, 100, 'playerIdle');
@@ -226,9 +226,21 @@ this.physics.add.collider(player, collidersGroup, onCollisionPlayer);
         }
       });
     });
-    this.socket.on('newPlayer', function (playerInfo) {
-      addOtherPlayers(self, playerInfo);
+    this.socket.on('newPlayer', function (players) {
+      Object.keys(players).forEach(function (id) {
+        if (players[id].playerId === self.socket.id) {
+          if (!player) {
+            addPlayer(self, players[id]);
+          }  
+        } else {
+          addOtherPlayers(self, players[id]);
+        }
+      });
     });
+    
+    // this.socket.on('newPlayer', function (playerInfo) {
+    //   addOtherPlayers(self, playerInfo);
+    // });
     this.socket.on('disconnect', function (playerId) {
       if (playerId === self.socket.id) {
         // Игрок переподключился, очищаем его оружие

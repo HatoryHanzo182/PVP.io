@@ -69,7 +69,7 @@ io.on("connection", (socket) =>
   sendWeaponsInfo(socket);
 
   socket.emit("currentPlayers", players);
-  socket.broadcast.emit("newPlayer", players[socket.id]);
+  socket.broadcast.emit("newPlayer", players);
   
   // { ======= User in session container. ======= }
   socket.on("saveGamerSession", (nickname) => 

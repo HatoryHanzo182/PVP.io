@@ -206,10 +206,6 @@ function ChatHistoryLimit(limit)
 }
 // { ============== }
 
-
-
-
-
 // { ======= Rooms container. ======= }
 function CreateRoom()
 {
