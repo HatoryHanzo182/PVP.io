@@ -11,6 +11,7 @@ const zlib = require("zlib");
 var players = {};
 const rooms = {};
 const weapons = [];	
+let nickname;
 let nextWeaponId = 1;
 const weaponSpawnInterval = 5000;
 
