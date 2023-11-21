@@ -10,21 +10,21 @@ const zlib = require("zlib");
 
 var players = {};
 const rooms = {};
-const weapons = [];	
+const weapons = [];
 let nextWeaponId = 1;
 const weaponSpawnInterval = 5000;
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(compression());
 
-app.get("/", (req, res) => 
-{
+app.get("/", (req, res) => {
   res.setHeader("Content-Encoding", "gzip");
-  res.sendFile(__dirname + "/index.html", 
-  {
+  res
+    .sendFile(__dirname + "/index.html", {
       method: "GET",
       headers: { "Content-Type": "text/html" },
-  }).pipe(zlib.createGzip());
+    })
+    .pipe(zlib.createGzip());
 });
 
 function spawnRandomWeapon() {
@@ -42,104 +42,89 @@ function spawnRandomWeapon() {
   io.emit("newWeapon", newWeapon);
 }
 
-
 function sendWeaponsInfo(socket) {
   weapons.forEach((weapon) => {
     socket.emit("newWeapon", weapon);
   });
 }
 
-io.on("connection", (socket) => 
-{
+io.on("connection", (socket) => {
   console.log("::USER CONNECTED: ", socket.id);
 
   const socketData = { player_id: socket.id };
   socket.socketData = socketData;
 
-  players[socket.id] = 
-  {
+  players[socket.id] = {
     rotation: 0,
     x: Math.floor(Math.random() * 700) + 50,
     y: Math.floor(Math.random() * 500) + 50,
     playerId: socket.id,
     isMoving: false,
-    flipX: false
+    flipX: false,
   };
 
   sendWeaponsInfo(socket);
 
   socket.emit("currentPlayers", players);
   socket.broadcast.emit("newPlayer", players);
-  
+
   // { ======= User in session container. ======= }
-  socket.on("saveGamerSession", (nickname) => 
-  {
-    CheckUserExistence(nickname, (exists) => 
-    {
-      if (!exists) 
-      {
+  socket.on("saveGamerSession", (nickname) => {
+    CheckUserExistence(nickname, (exists) => {
+      if (!exists) {
         AddUserToDatabase(socket.id, nickname);
 
         socket.emit("saveGamerSessionResponse", { success: true });
-      } 
-      else
-        socket.emit("saveGamerSessionResponse", { success: false, error: "Nickname is already taken" });
+      } else
+        socket.emit("saveGamerSessionResponse", {
+          success: false,
+          error: "Nickname is already taken",
+        });
     });
   });
 
-  function CheckUserExistence(nickname, callback) 
-  {
+  function CheckUserExistence(nickname, callback) {
     const sql = "SELECT * FROM UsersInSession WHERE nickname = ?";
-    
-    db.query(sql, [nickname], (err, rows) => 
-    {
-      if (err) 
-      {
+
+    db.query(sql, [nickname], (err, rows) => {
+      if (err) {
         console.error("Error checking user existence:", err);
-        
+
         callback(false);
-      } 
-      else 
-        callback(rows.length > 0);
+      } else callback(rows.length > 0);
     });
   }
 
-  function AddUserToDatabase(socketId, nickname) 
-  {
+  function AddUserToDatabase(socketId, nickname) {
     const user_id = socketId;
-    const sql = "INSERT INTO UsersInSession (id_in_session, nickname) VALUES (?, ?)";
-  
-    db.query(sql, [user_id, nickname], (err, result) => 
-    {
-        console.log(`💿 USER ADDED TO SESSION: { ${user_id}, ${nickname} }`);
+    const sql =
+      "INSERT INTO UsersInSession (id_in_session, nickname) VALUES (?, ?)";
+
+    db.query(sql, [user_id, nickname], (err, result) => {
+      console.log(`💿 USER ADDED TO SESSION: { ${user_id}, ${nickname} }`);
     });
   }
   // { ============== }
 
   // { ======= Chat container. ======= }
-  socket.on("chatMessage", (message) => 
-  {
+  socket.on("chatMessage", (message) => {
     const sql = "INSERT INTO ChatHistory (nickname, message) VALUES (?, ?)";
 
-    db.query(sql, [message.user, message.text], (err, result) => 
-    {
+    db.query(sql, [message.user, message.text], (err, result) => {
       if (err)
         console.error("Error when inserting message into database:", err);
-      else 
-        console.log(`📧 MESSAGE SEND CONFIRMED: ${JSON.stringify(message)}`);
+      else console.log(`📧 MESSAGE SEND CONFIRMED: ${JSON.stringify(message)}`);
     });
 
     socket.broadcast.emit("chatMessage", message);
   });
   // { ============== }
 
-  // { ======= Room container. ======= } 
+  // { ======= Room container. ======= }
   socket.emit("existingRooms", { rooms });
-  
-  socket.on("createRoom", (roomName) => 
-  {
-    if (!rooms[roomName]) 
-    {
+
+  socket.on("createRoom", (roomName) => {
+    if (!rooms[roomName]) {
       rooms[roomName] = { players: {} };
       rooms[roomName].players[socket.id] = players[socket.id];
 
@@ -147,25 +132,21 @@ io.on("connection", (socket) =>
 
       io.emit("roomCreated", { roomName });
       io.emit("existingRooms", rooms);
-    } 
-    else
+    } else
       socket.emit("roomError", "A room with the same name already exists.");
   });
 
-  socket.on("joinRoom", (roomName) => 
-  {
-    if (rooms[roomName]) 
-    {
+  socket.on("joinRoom", (roomName) => {
+    if (rooms[roomName]) {
       rooms[roomName].players[socket.id] = players[socket.id];
-      
+
       socket.join(roomName);
-      
+
       io.to(roomName).emit("roomJoined", rooms[roomName]);
       io.emit("existingRooms", rooms);
-      
+
       console.log(`User [${socket.id}] joined the room { ${roomName} }`);
-    } 
-    else
+    } else
       socket.emit("roomError", "A room with the same name already exists.");
   });
 
@@ -185,23 +166,21 @@ io.on("connection", (socket) =>
   });
 
   socket.on("pickupWeapon", (weaponId, playerId) => {
-    
     playerId = socket.id;
     console.log(`Игрок ${playerId} подобрал оружие с ID ${weaponId}`);
-    
+
     const weapon = weapons.find((w) => w.id === weaponId);
     if (weapon) {
       weapon.isPickedUp = true;
-     
+
       io.emit("weaponPickedUp", weaponId, socket.id);
     }
   });
 
   socket.on("dropWeapons", (weaponId, playerId) => {
-    
     playerId = socket.id;
     console.log(`Игрок ${playerId} отпустил оружие с ID ${weaponId}`);
-    
+
     const weapon = weapons.find((w) => w.id === weaponId);
     if (weapon) {
       weapon.isPickedUp = false;
@@ -218,16 +197,14 @@ io.on("connection", (socket) =>
     socket.broadcast.emit("bulletUpdate", bulletData);
   });
 
-  socket.on("disconnect", () => 
-  {
+  socket.on("disconnect", () => {
     console.log("::USER DISCONNECTED: ", socket.id);
 
-    const sql_select = "SELECT nickname FROM UsersInSession WHERE id_in_session = ?";
+    const sql_select =
+      "SELECT nickname FROM UsersInSession WHERE id_in_session = ?";
 
-    db.query(sql_select, [socket.id], (err, rows) => 
-    {
-      if (!err && rows.length > 0) 
-      {
+    db.query(sql_select, [socket.id], (err, rows) => {
+      if (!err && rows.length > 0) {
         const sql_delete = "DELETE FROM UsersInSession WHERE id_in_session = ?";
 
         db.query(sql_delete, [socket.id]);
@@ -239,7 +216,7 @@ io.on("connection", (socket) =>
   });
 });
 
-function startGame(){
+function startGame() {
   setInterval(spawnRandomWeapon, weaponSpawnInterval);
 }
 
@@ -248,26 +225,20 @@ setTimeout(() => {
   startGame();
 }, 1000);
 
-// { ======= DB CHAT SECTOR. ======= } 
-const db = mysql.createConnection(
-{
+// { ======= DB CHAT SECTOR. ======= }
+const db = mysql.createConnection({
   host: "127.0.0.1",
   user: "root",
   password: "Alex960909",
 });
 
-db.connect((err) => 
-{
-  db.query("CREATE DATABASE IF NOT EXISTS pvp_db", (err, result) => 
-  {
-    if(err) 
-      console.error("Error creating database:", err);
+db.connect((err) => {
+  db.query("CREATE DATABASE IF NOT EXISTS pvp_db", (err, result) => {
+    if (err) console.error("Error creating database:", err);
   });
 
-  db.changeUser({ database: "pvp_db" }, (err) => 
-  {
-    if(err) 
-      console.error("Error when changing database:", err);
+  db.changeUser({ database: "pvp_db" }, (err) => {
+    if (err) console.error("Error when changing database:", err);
   });
 
   db.query(`CREATE TABLE IF NOT EXISTS ChatHistory 
@@ -277,7 +248,7 @@ db.connect((err) =>
       message VARCHAR(1000) NOT NULL,
       date_sent TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
-  
+
   db.query(`CREATE TABLE IF NOT EXISTS UsersInSession 
   (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -285,8 +256,7 @@ db.connect((err) =>
     nickname VARCHAR(50) NOT NULL
   )`);
 
-  if (err) 
-  {
+  if (err) {
     console.error("Error connecting to database:", err);
     return;
   }
@@ -294,46 +264,49 @@ db.connect((err) =>
   console.log("🔌 Connected to base status: [true]");
 });
 
-app.get("/getChatHistory/:limit", (req, res) => 
-{
+app.get("/getChatHistory/:limit", (req, res) => {
   const limit = parseInt(req.params.limit, 10);
 
-  db.query("SELECT * FROM ChatHistory ORDER BY date_sent DESC LIMIT ?", [limit], (err, rows) => 
-  {
-    const data = JSON.stringify(rows);
-    
-    zlib.gzip(data, (err, compressedData) => 
-    {
-      if (err) 
-      {
-        console.error("Error compressing data:", err);
-        return res.status(500).send("Error compressing data");
-      }
-      
-      res.setHeader("Content-Encoding", "gzip");
-      res.send(compressedData);
-    });
-  });
+  db.query(
+    "SELECT * FROM ChatHistory ORDER BY date_sent DESC LIMIT ?",
+    [limit],
+    (err, rows) => {
+      const data = JSON.stringify(rows);
+
+      zlib.gzip(data, (err, compressedData) => {
+        if (err) {
+          console.error("Error compressing data:", err);
+          return res.status(500).send("Error compressing data");
+        }
+
+        res.setHeader("Content-Encoding", "gzip");
+        res.send(compressedData);
+      });
+    }
+  );
 });
 
-const job = new CronJob("0 9 * * *", () => 
-{
+const job = new CronJob("0 9 * * *", () => {
   const one_week_ago = new Date();
 
   one_week_ago.setDate(one_week_ago.getDate() - 7);
 
-  db.query("DELETE FROM ChatHistory WHERE date_sent < ?", [one_week_ago], (err, result) => 
-  {
+  db.query(
+    "DELETE FROM ChatHistory WHERE date_sent < ?",
+    [one_week_ago],
+    (err, result) => {
       console.log("🔨 SCHEDULED SERVER CLEANUP WAS SUCCESSFUL");
-  });
+    }
+  );
 });
 
 job.start();
 // { ============== }
 
-app.use((req, res) => 
-{
+app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
 });
 
-server.listen(8081, () => { console.log(`Server is spinning: -> 👽 http://localhost:8081/`); });
+server.listen(8081, () => {
+  console.log(`Server is spinning: -> 👽 http://localhost:8081/`);
+});
