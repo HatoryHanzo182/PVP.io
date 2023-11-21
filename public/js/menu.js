@@ -187,25 +187,21 @@ function ChatHistoryLimit(limit) {
 // { ============== }
 
 // { ======= Rooms container. ======= }
-function CreateRoom() {
+function CreateRoom() 
+{
   const room = document.getElementById("input-room").value;
   var nickname = document.getElementById("input").value;
   const error_element = document.getElementById("error-input");
 
-  // if (!room.trim()) {
-  //   alert("Please enter a valid room name.");
-  if (!InputValidityData(nickname)) {
-    error_element.innerHTML = "Please enter a valid nickname";
-    return;
-  }
-  if (!room.trim()) {
-    alert("Please enter a valid room name.");
-    return;
-  } else {
-    socket.emit("createRoom", room);
+  if (InputValidityData(nickname)) 
+  {
+    socket.emit("saveGamerSession", nickname);
 
+    socket.emit("createRoom", room);
     JoinRoom(room);
   }
+  else 
+    error_element.innerHTML = "Invalid input data";
 }
 
 socket.on("existingRooms", (data) => {

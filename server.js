@@ -10,7 +10,7 @@ const zlib = require("zlib");
 
 var players = {};
 const rooms = {};
-const weapons = [];
+const weapons = [];	
 let nextWeaponId = 1;
 const weaponSpawnInterval = 5000;
 
@@ -30,14 +30,21 @@ app.get("/", (req, res) => {
 function spawnRandomWeapon() {
   const x = Math.floor(Math.random() * 700) + 50;
   const y = Math.floor(Math.random() * 500) + 50;
+  
   nextWeaponId++;
+
+  // Generate a random number (0 or 1) to determine the weapon type
+  const randomType = Math.random() < 0.5 ? "pistol" : "melee";
+  //const randomType = "pistol";
   const newWeapon = {
     id: nextWeaponId,
+    weaponType: randomType,
     x: x,
     y: y,
     isPickedUp: false,
     pool: 10,
   };
+  
   weapons.push(newWeapon);
   io.emit("newWeapon", newWeapon);
 }
@@ -54,20 +61,22 @@ io.on("connection", (socket) => {
   const socketData = { player_id: socket.id };
   socket.socketData = socketData;
 
-  players[socket.id] = {
+  players[socket.id] = 
+  {
     rotation: 0,
-    x: Math.floor(Math.random() * 700) + 50,
-    y: Math.floor(Math.random() * 500) + 50,
+    x: Math.floor(Math.random() * 1700) + 50,
+    y: Math.floor(Math.random() * 1100) + 50,
+    nickname: nickname,
     playerId: socket.id,
     isMoving: false,
-    flipX: false,
+    flipX: false
   };
 
   sendWeaponsInfo(socket);
 
   socket.emit("currentPlayers", players);
   socket.broadcast.emit("newPlayer", players);
-
+  
   // { ======= User in session container. ======= }
   socket.on("saveGamerSession", (nickname) => {
     CheckUserExistence(nickname, (exists) => {
@@ -102,6 +111,28 @@ io.on("connection", (socket) => {
 
     db.query(sql, [user_id, nickname], (err, result) => {
       console.log(`💿 USER ADDED TO SESSION: { ${user_id}, ${nickname} }`);
+    });
+  }
+  
+  socket.on("RegenerateID", (db_id) => 
+  {
+    UpdateSocketIdInDatabase(db_id, socket.id) 
+  });
+
+  function UpdateSocketIdInDatabase(oldSocketId, newSocketId) 
+  {
+    const sql = "UPDATE UsersInSession SET id_in_session = ? WHERE id_in_session = ?";
+    
+    db.query(sql, [newSocketId, oldSocketId], (err, result) => 
+    {
+      if (err) 
+        console.error("Error updating socket id in the database:", err);
+      else 
+      {
+        delete players[oldSocketId];
+        io.emit("disconnect", oldSocketId);
+        console.log(`::Regenerating socket id for user ${oldSocketId} ----> ${newSocketId}`);
+      }
     });
   }
   // { ============== }
@@ -149,7 +180,6 @@ io.on("connection", (socket) => {
     } else
       socket.emit("roomError", "A room with the same name already exists.");
   });
-
   // { ============== }
 
   socket.on("playerMovement", (movementData) => {
@@ -172,7 +202,7 @@ io.on("connection", (socket) => {
     const weapon = weapons.find((w) => w.id === weaponId);
     if (weapon) {
       weapon.isPickedUp = true;
-
+     
       io.emit("weaponPickedUp", weaponId, socket.id);
     }
   });
@@ -193,7 +223,8 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("weaponUpdate", weaponData);
   });
 
-  socket.on("bulletUpdates", (bulletData) => {
+  socket.on("bulletUpdates", (bulletData) => 
+  {
     socket.broadcast.emit("bulletUpdate", bulletData);
   });
 
@@ -216,20 +247,17 @@ io.on("connection", (socket) => {
   });
 });
 
-function startGame() {
+function startGame(){
   setInterval(spawnRandomWeapon, weaponSpawnInterval);
 }
 
-setTimeout(() => {
-  console.log("check");
-  startGame();
-}, 1000);
+setTimeout(() => { startGame(); }, 1000);
 
 // { ======= DB CHAT SECTOR. ======= }
 const db = mysql.createConnection({
   host: "127.0.0.1",
   user: "root",
-  password: "Alex960909",
+  password: "root",
 });
 
 db.connect((err) => {
