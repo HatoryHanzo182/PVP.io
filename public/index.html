@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./menu.css" />
     <link href="https://fonts.cdnfonts.com/css/8bit-wonder" rel="stylesheet" />
-    <title>Magica 🧙‍♂️</title>
+    <title>PVP.io</title>
   </head>
   <body>
     <!--MENU CONTENT.-->
@@ -13,30 +13,14 @@
       <!-- Settings -->
       <header>
         <div class="settings-container">
-          <button id="toggle-settings" class="open-settings">
-            <img src="./assets/settings.png" alt="settings" />
-          </button>
+          <button id="toggle-settings" class="open-settings"><img src="./assets/settings.png" alt="settings" /></button>
           <div class="settings-box" id="settings-box">
             <div class="settings-content">
-              <p>
-                Chat history
-                <input type="checkbox" id="chat-history-checkbox" />
-              </p>
+              <p> Chat history <input type="checkbox" id="chat-history-checkbox" /></p>
               <div id="chathistory" class="chathistory">
-                <p class="">
-                  History
-                  <input
-                    id="historychat-number-setting"
-                    class="historynum"
-                    type="number"
-                    min="1"
-                    max="100"
-                  />
-                </p>
+                <p class="">History<input id="historychat-number-setting" class="historynum" type="number" min="1" max="100"/></p>
               </div>
-              <button id="save-data-seting" type="button" class="save-btn">
-                Save
-              </button>
+              <button id="save-data-seting" type="button" class="save-btn">Save</button>
             </div>
           </div>
         </div>
@@ -44,36 +28,20 @@
       <!-- Main -->
       <div class="menu">
         <div>
-          <input
-            id="input"
-            type="text"
-            placeholder="Enter your nickname"
-            required
-            class="menu-input"
-          />
+          <input id="input" type="text" placeholder="Enter your nickname" required class="menu-input"/>
           <select id="select" class="select-menu">
             <option value="1"></option>
             <option value="2"></option>
           </select>
         </div>
         <span class="error-input" id="error-input"></span>
-        <button id="save-gamer-session" type="button" class="menu-btn">
-          Join
-        </button>
+        <button id="save-gamer-session" type="button" class="menu-btn">Join</button>
         <br />
         <br />
         <!-- Rooms. -->
         <div class="r-menu">
-          <input
-            id="input-room"
-            type="text"
-            placeholder="Enter room name"
-            required
-            class="r-input"
-          />
-          <button id="create-room" type="button" class="r-btn">
-            Create room
-          </button>
+          <input id="input-room" type="text" placeholder="Enter room name" required class="r-input" />
+          <button id="create-room" type="button" class="r-btn">Create room</button>
         </div>
       </div>
       <!-- Chat -->
@@ -87,12 +55,7 @@
             <div class="received-message"></div>
           </div>
           <div class="chat-input">
-            <input
-              class="inpt"
-              type="text"
-              id="message"
-              placeholder="Type your message..."
-            />
+            <input class="inpt" type="text" id="message" placeholder="Type your message..."/>
             <button id="send-message" class="btn-send">Send</button>
           </div>
         </div>
@@ -100,9 +63,7 @@
       <script src="/socket.io/socket.io.js"></script>
       <script type="module" src="./js/socketModule.js"></script>
       <script type="module" src="./js/menu.js"></script>
-      <script type="module" src="./js/room.js"></script>
     </div>
-
     <!--GAME CONTENT.-->
     <div id="game-layout" class="hidden-elements">
       <style>

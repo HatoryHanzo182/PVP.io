@@ -7,7 +7,7 @@ export function startGame()
     fps: {
       target: 60,
     },
-    width: 1000,
+    width: 2000,
     height: 1000,
     physics: {
       default: 'arcade',
@@ -26,6 +26,7 @@ export function startGame()
   };
     
   const game = new Phaser.Game(config);
+
   let collidersGroup;
   let player;
   let nickname;
@@ -65,6 +66,7 @@ export function startGame()
   let canShoot = true;
   let topCollider;
   let wallsLayer;
+  let camera;
   
   function preload() {
     this.load.image('tiles', 'assets/tiles/tilemap.png');
@@ -87,12 +89,14 @@ export function startGame()
   }
 
   function create() {
-  
+    
 
     self = this;
     this.socket = io();
-
+    
     this.socket.emit("RegenerateID", socket.id);
+
+    camera = this.cameras.main;
     
     this.map = this.make.tilemap({ key: 'map', tileWidth: 18, tileHeight: 18 });
     this.tileset = this.map.addTilesetImage('tileSet', 'tiles', 18, 18);
@@ -103,22 +107,22 @@ export function startGame()
     
     this.bushesLayer.setDepth(2);
     wallsLayer.setCollisionBetween(0,2600);
-    wallsLayer.setCollisionBetween(3926,3927);
+    wallsLayer.setCollisionBetween(6000,6500);
     wallsLayer.setCollisionBetween(4006,4008);
     wallsLayer.setDepth(2);
    
     spawnPlayer();
-   
-   /* const debugGraphics = this.add.graphics().setAlpha(0.7);
+    
+    /*const debugGraphics = this.add.graphics().setAlpha(0.7);
     wallsLayer.renderDebug(debugGraphics,{
       tileColor: null,
       collidingTileColor: new Phaser.Display.Color(231, 222, 48, 253),
       faceColor: new Phaser.Display.Color(231, 222, 56, 213)
     })*/
-    
+     // player = null;
 
-    
- 
+     //this.socket.emit("saveNicknames", nickname);
+     
 
       // Создание графического объекта
       const graphics = this.add.graphics();
@@ -164,7 +168,7 @@ export function startGame()
     
     
     document.body.style.cursor = 'none';
-    this.customCursor = this.add.sprite(800, 700, 'customCursor');
+    this.customCursor = this.add.sprite(player.x + 100, player.y, 'customCursor');
     this.customCursor.setOrigin(0, 0);
     this.customCursor.setScale(0.3);
     this.customCursor.setDepth(2);
@@ -258,10 +262,22 @@ export function startGame()
       });
     });
 
-    this.socket.on('newPlayer', function (playerInfo) {
-      addOtherPlayers(self, playerInfo);
+    this.socket.on('newPlayer', function (players) 
+    {
+      Object.keys(players).forEach(function (id) 
+      {
+        if (players[id].playerId === self.socket.id) 
+        {
+          if (!player)
+          {
+            addPlayer(self, players[id]);
+            this.socket = socket;
+          }
+        } 
+        else 
+          addOtherPlayers(self, players[id]);
+      });
     });
-
     this.socket.on('disconnect', function (playerId) {
       if (playerId === self.socket.id) {
         // Игрок переподключился, очищаем его оружие
@@ -332,23 +348,24 @@ export function startGame()
     });
 });
 
-this.socket.on("saveNickname", function (nick) {
-  nickname = nick;
-  console.log(nick);
-  //socket.emit("saveNicknames", nickname);
-})
-
-  /*this.socket.on("saveNicknames", function (players){
-    Object.keys(players).forEach(function (nickname) {
-      //if (players[nickname].playerId === self.socket.id) {
-        console.log(nickname);
+this.socket.on("saveNickname", (nickname) => {
+  
+      nickname = nickname;
+      console.log(nickname);
+      showNickname(nickname);
+    
+  
+  
+        
+        
       
-          //showNicknames(self, players[nickname]);
-        
-        
-    //  } 
-    });
-  });*/
+});
+
+this.socket.on('playerMoved', function (playerInfo) {
+  
+});
+
+
 
   this.socket.on("weaponPickedUp", function (weaponId, playerId, weaponType) {
   
@@ -357,14 +374,14 @@ this.socket.on("saveNickname", function (nick) {
     pistolTakeSound.play();
     
     // Находим оружие по его ID
-    const pickedUpWeapon = self.weaponsGroup.getChildren().find((weapon) => weapon.id === weaponId);
+    let pickedUpWeapon = self.weaponsGroup.getChildren().find((weapon) => weapon.id === weaponId);
 
     if (playerId === self.socket.id) {
         console.log(`Игрок ${playerId} это мы`);
         playerWeaponId = weaponId;
         playerWeapon = playerWeapons.find((weapon) => weapon.id === weaponId);
         playerWeapon.isPickedUp = true;
-        playerWeapon.pool = bullets.length;
+        //playerWeapon.pool = bullets.length;
         switch (weaponType) {
           case "pistol":
             isPistol = true;
@@ -459,7 +476,7 @@ this.socket.on("saveNickname", function (nick) {
                 }
                 else{
                  
-                 playerWeapon.play('pistol_idle', true);
+                  if(weaponData.isPistol) playerWeapon.play('pistol_idle', true);
                 }  
               }
               if(weaponData.isMelee){
@@ -505,7 +522,7 @@ this.socket.on("saveNickname", function (nick) {
             
             createBullet(bulletData.playerWeaponX, bulletData.playerWeaponY, bulletData.angle);
            // self.physics.add.collider(bulletData.bullet, bulletData.player, bulletPlayerCollision, null, self);
-            self.physics.add.collider(bulletData.bullet, wallsLayer, onCollisionBullet, null, self);
+            //self.physics.add.collider(bulletData.bullet, wallsLayer, onCollisionBullet, null, self);
             
           //}
         }
@@ -521,13 +538,24 @@ this.socket.on("saveNickname", function (nick) {
  
   }
 
-  function showNicknames(self, playerInfo){
-    console.log(playerInfo);
-  }
 
   function update() {
-    
+
     move();
+
+    // НЕ ТРОГАТЬ!
+    this.socket.emit('checkBan', this.socket.id, (data) => 
+    {
+      if (data.error) 
+      {
+        console.error('Error checking ban status:', data.error);
+        return;
+      }
+    
+      if (data.banned)
+        window.location.href = '/ban';
+    });
+    //
     
     if (isMoving) {
       if(isFell){
@@ -553,8 +581,8 @@ this.socket.on("saveNickname", function (nick) {
     const cameraSpeed = 0.1;
     const camX = this.cameras.main.scrollX;
     const camY = this.cameras.main.scrollY;
-    const newCamX = camX + (targetX - game.config.width / 2 - camX) * cameraSpeed;
-    const newCamY = camY + (targetY - game.config.height / 2 - camY) * cameraSpeed;
+    const newCamX = camX + ((targetX + 100) - game.config.width / 2 - camX) * cameraSpeed;
+    const newCamY = camY + ((targetY + 100)  - game.config.height / 2 - camY) * cameraSpeed;
 
   // Устанавливаем новую позицию камеры
     this.cameras.main.scrollX = newCamX;
@@ -570,7 +598,7 @@ this.socket.on("saveNickname", function (nick) {
 
       armed(playerWeapon);
       this.input.on('pointerdown', function (pointer) {
-        if (pointer.leftButtonDown() && canShoot && playerWeapons.length > 0 && bullets.filter(bullet => bullet.active).length < poolLength) {
+        if (pointer.leftButtonDown() && canShoot && playerWeapons.length > 0 && bullets.filter(bullet => bullet.active).length < 10) {
           if(isPistol){
             canShoot = false; // Запретить стрельбу
             isShooting = true;
@@ -595,7 +623,7 @@ this.socket.on("saveNickname", function (nick) {
           self.time.delayedCall(200, () => {
             canShoot = true;
             isShooting = false;
-           
+            
             
           });
         }
@@ -606,10 +634,15 @@ this.socket.on("saveNickname", function (nick) {
 
   
     this.physics.add.overlap(player, this.weaponsGroup, (player, weapon) => {
-      if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E)) ) {
+      if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E) ) ) {
         // Отправить серверу запрос на подбор оружия
-        onPickupWeapon(player, weapon);
-        this.socket.emit("pickupWeapon");
+       
+        
+          onPickupWeapon(player, weapon);
+        
+
+        
+        
       }
     });
   
@@ -641,7 +674,7 @@ this.socket.on("saveNickname", function (nick) {
   function armed(weapon){
     const angleToCursor = Phaser.Math.Angle.Between(player.x, player.y, self.customCursor.x, self.customCursor.y);
     const pistolOffsetX = isFlipX ? 10 : 30; // Смещение пистолета в зависимости от отзеркаливания
-    const pistolOffsetY = 15; // Смещение пистолета относительно персонажа по вертикали
+    const pistolOffsetY = 17; // Смещение пистолета относительно персонажа по вертикали
     let animationKey;
     let playerWeapon = weapon;
     
@@ -675,7 +708,7 @@ this.socket.on("saveNickname", function (nick) {
           console.log(bullets.length);
            playerWeapon.play('pistol_shoot', true);
         } else {
-          playerWeapon.play('pistol_idle', true);
+          if(isPistol)playerWeapon.play('pistol_idle', true);
         }  
       
       }
@@ -768,25 +801,43 @@ function onCollisionBullet(bullet, collider) {
     graphics.lineTo(x + mapWidth, y);
     graphics.lineTo(x + mapWidth, y + mapHeight);
     graphics.lineTo(x, y + mapHeight);
-    graphics.closePath(); // Закрываем путь, чтобы создать замкнутую фигуру
+    graphics.closePath(); 
     graphics.strokePath();
 }
-
+function showNickname(nick){
+  var nick = self.add.text(player.x, player.y - 15, nick, {
+    fontFamily: 'Roboto',
+    fontSize: '20px',
+    color: '#ffffff'
+  });
+  return nick;
+}
 function spawnPlayer(){
    if(player){
     player.destroy();
    }
-    let randPosX =  Math.floor(Math.random() * 700) + 50;
-    let randPosY =  Math.floor(Math.random() * 500) + 50;
+   self.tweens.add({
+    targets: camera,
+    zoom: 1.3, 
+    duration: 2000, 
+    ease: 'Linear', 
+    repeat: 0, 
+    yoyo: false 
+  });
+                                                //?    //?
+    let randPosX =  Math.floor(Math.random() * 1300) + 1200;
+                                                //?    //?
+    let randPosY =  Math.floor(Math.random() * 1200) + 1200;
     player = self.physics.add.sprite(randPosX, randPosY, 'playerIdle').setSize(25,25);
     player.setOrigin(0, 0);
     player.setDepth(1);
     player.setBounce(1, 1);
-    player.setCollideWorldBounds(true);
-
+    //player.setCollideWorldBounds(true);
+    console.log(randPosX,randPosY);
+    
     self.physics.add.collider(player, wallsLayer, null, null, this);
    //self.physics.add.collider(player, collidersGroup, onCollisionPlayer);
-
+   
     return player;
 }
     
@@ -925,7 +976,7 @@ function oops(){
     bullet.setVisible(true);
     bullet.setBounce(0, 0);
 
-    bullets.push(bullet);
+    
     pistolShootSound.play();
 
     // Set an initial position to track the starting point
@@ -963,11 +1014,11 @@ function oops(){
   
         // Добавьте обработчик столкновения пули с коллайдерами
         //self.physics.add.collider(bullet, collidersGroup, onCollisionBullet);
-       // self.physics.add.collider(bullet, player, bulletPlayerCollision, null, self);
+        self.physics.add.collider(bullet, player, bulletPlayerCollision, null, self);
         self.physics.add.collider(bullet, wallsLayer, onCollisionBullet, null, self);
         
         pistolShootSound.play();
-        
+       
         console.log(`Выпущено ${bullets.length} пуль`);
         
         self.socket.emit("bulletUpdates", {
@@ -1037,7 +1088,7 @@ function oops(){
   
 
   function createBulletsPool(poolSize) {
-    poolLength = poolSize;
+    
     // Очистите существующие пули
     bullets.forEach(bullet => {
       bullet.destroy();
@@ -1058,12 +1109,11 @@ function oops(){
   }
 
   function onPickupWeapon(player, weapon) {
+    //
     
+  
  // Добавьте проверку, принадлежит ли оружие другому игроку
- if (weapon.isPickedUp && weapon.playerId !== self.socket.id) {
-  // Выполните отвязку от старого игрока
-    self.socket.emit("dropWeapon", weapon.id, weapon.playerId);
-  }
+
     
     if (!hasWeapon && !isFell) {
           player.weapon = weapon;
@@ -1071,6 +1121,7 @@ function oops(){
           weapon.x = player.x;
           weapon.y = player.y;
           weapon.isPickedUp = true;
+          console.log(weapon.isPickedUp);
           playerWeapons.push(weapon);
           hasWeapon = true;
           createBulletsPool(10);
@@ -1153,7 +1204,6 @@ function oops(){
 
   function addPlayer(self, playerInfo) {
     self.player = self.add.sprite(playerInfo.x, playerInfo.y, 'playerIdle');
-   
     self.player.play('idle');
     
   }
@@ -1168,7 +1218,8 @@ function oops(){
       otherPlayer.setDepth(0); // Установите origin для нового игрока
 
       self.otherPlayers.add(otherPlayer);
-      //console.log(playerInfo.nickname);
     }
-  };
+  }
+
+  
 }
